@@ -3,7 +3,7 @@
 #include <fstream>
 using std::ofstream;
 
-#include "image.h"
+#include "bundle.h"
 #include "log.h"
 
 #define STB_IMAGE_IMPLEMENTATION

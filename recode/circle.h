@@ -29,6 +29,9 @@ class Circle : public Shape {
 			this->r = r;
 		}
 
+
+		// TODO: This does the same thing as [drawLines] does!
+		// TODO: Remove
 		virtual void Draw(Image* dc, Color c) {
 			vector<Scanline> lines = Rasterize();
 

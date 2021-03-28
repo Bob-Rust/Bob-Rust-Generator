@@ -6,7 +6,7 @@
 using std::vector;
 using std::stringstream;
 
-#include "image.h"
+#include "bundle.h"
 #include "shape.h"
 #include "worker.h"
 #include "core.h"

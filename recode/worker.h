@@ -15,7 +15,6 @@ class Worker {
 		Image* current = 0;
 		Image* buffer;
 		vector<Scanline> lines;
-		// Heatmap* heatmap;
 		Rand* rnd;
 		float score = 0;
 		int counter = 0;
@@ -28,7 +27,6 @@ class Worker {
 			this->target = target;
 			this->buffer = new Image(w, h);
 			this->lines.reserve(4096);
-			// this->heatmap = new Heatmap(w, h);
 			this->rnd = new Rand();
 		}
 
@@ -36,14 +34,12 @@ class Worker {
 			delete buffer;
 			delete rnd;
 			lines.clear(); // TODO: Delete
-			// delete heatmap;
 		}
 
 		void Init(Image* current, float score) {
 			this->current = current;
 			this->score = score;
 			this->counter = 0;
-			// this->heatmap->Clear();
 		}
 
 		float Energy(Shape* shape, int alpha) {
@@ -62,7 +58,6 @@ class Worker {
 			float result = differencePartial(this->target, this->current, this->buffer, this->score, lines);
 			
 			// v("Energy: %.6f\n", result);
-			// TODO: Clear the lines ???
 
 			return result;
 		}

@@ -6,7 +6,6 @@
 
 #include "../utils.h"
 #include "bundle.h"
-#include "image.h"
 
 typedef long long int64;
 typedef unsigned long long uint64;
@@ -55,10 +54,8 @@ void copyLines_replaceRegion(Image* dst, Image* src, vector<Scanline>& lines) {
 		Scanline line = lines[i];
 
 		int idx = dst->PixOffset(line.x1, line.y);
-		//int b = a + (line.x2 - line.x1 + 1);
-		
-		// This is probably what the copy keyword does ????
-		// copy(dst.Pix[a:b], src.Pix[a:b])
+
+		// TODO: Use memcpy
 		for(int x = line.x1; x < line.x2; x++) {
 			dst->Pix[idx] = src->Pix[idx];
 			idx++;
@@ -67,35 +64,16 @@ void copyLines_replaceRegion(Image* dst, Image* src, vector<Scanline>& lines) {
 }
 
 void drawLines(Image* im, Color& c, vector<Scanline>& lines) {
-	const int m = 0xffff;
-
 	for(unsigned int i = 0; i < lines.size(); i++) {
 		Scanline line = lines[i];
-
-		//int ma = 0xffff;
-		//int a = (0xffff - ss.a) * 0x101;
 		int idx = im->PixOffset(line.x1, line.y);
 
 		for(int x = line.x1; x <= line.x2; x++) {
 			Color& a = im->Pix[idx++];
-			/*
-			Color nn{
-				(unsigned char)((((int)dd.r * a + (int)ss.r * ma) / m) >> 8),
-				(unsigned char)((((int)dd.g * a + (int)ss.g * ma) / m) >> 8),
-				(unsigned char)((((int)dd.b * a + (int)ss.b * ma) / m) >> 8),
-				(unsigned char)((((int)dd.a * a + (int)ss.a * ma) / m) >> 8)
-			};
-
-			im->Pix[idx++] = nn;
-			*/
-
-			
 			a.r = ((c.r * c.a) + (a.r * (255 - c.a))) / 255;
 			a.g = ((c.g * c.a) + (a.g * (255 - c.a))) / 255;
 			a.b = ((c.b * c.a) + (a.b * (255 - c.a))) / 255;
 			a.a = 255 - (((255 - a.a) * (255 - c.a)) / 255);
-			
-			//im->Pix[idx++] = nn;
 		}
 	}
 }
@@ -122,7 +100,7 @@ float differenceFull(Image* a, Image* b) {
 		}
 	}
 
-	// Why do we multiply by 4???? Is that because rgba?
+	// We divide with * 4.0f because we add 4 numbers above
 	return sqrt(total / (w * h * 4.0f)) / 255.0f;
 }
 
@@ -130,10 +108,6 @@ float differencePartial(Image* target, Image* before, Image* after, float score,
 	int w = target->width;
 	int h = target->height;
 	int64 total = (int64)(pow(score * 255, 2) * (w * h * 4.0f));
-	
-	//vvv("w: %d, h: %d\n", w, h);
-	//vvv("a: %f\n", pow(score * 255, 2) + 0.0f);
-	//vvv("Total: %d\n", total);
 
 	for(unsigned int i = 0; i < lines.size(); i++) {
 		Scanline line = lines[i];
@@ -158,12 +132,7 @@ float differencePartial(Image* target, Image* before, Image* after, float score,
 		}
 	}
 	
-	float ccc = total / (w * h * 4.0f);
-	float aaa = sqrt(ccc);
-	float bbb = aaa * 0.003921568627451f; // same as (x / 255.0)
-
-	//std::cout << "TEST: " << ccc << ", " << aaa << ", " << bbb << "\n";
-	return bbb;
+	return sqrt(total / (w * h * 4.0f)) * 0.003921568627451f; // 255
 }
 
 #endif

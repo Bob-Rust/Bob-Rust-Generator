@@ -7,6 +7,10 @@ constexpr int paintingToolScale = 1;
 
 #include "recode/bundle.h"
 
+
+// Alphas
+	constexpr int NUM_APLHAS = 6;
+	const int ARR_ALPHAS[NUM_APLHAS] = { 9, 18, 72, 136, 218, 255 };
 // Sizes
 	constexpr int NUM_SIZES = 6;
 	const int ARR_SIZES[NUM_SIZES] = { 1, 2, 4, 6, 10, 13 };
@@ -39,12 +43,6 @@ constexpr int paintingToolScale = 1;
 		COLOR(49, 49, 49, COMMON_OPACITY),
 		COLOR(1, 2, 1, COMMON_OPACITY)
 	};
-
-// Alphas
-	constexpr int NUM_APLHAS = 6;
-	const int ARR_ALPHAS[NUM_APLHAS] = { 9, 18, 72, 136, 218, 255 };
-
-
 
 // Utils
 #define clampInt(a, b, c) (a < b ? b:(a > c ? c:a))
@@ -102,6 +100,8 @@ int closestSize(int size) {
 	return ARR_SIZES[closest];
 }
 
+// This can be made instant with lookups
+// TODO: Create a 255 array that maps perfectly to the alpha values.
 int closestAlpha(int alpha) {
 	int closest = 0;
 	int dist = 0xffff;

@@ -13,23 +13,14 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="GoDot">
-      <UniqueIdentifier>{7e38ac71-5020-4683-b7b4-71a2790bac86}</UniqueIdentifier>
+    <Filter Include="Header Files\go_main">
+      <UniqueIdentifier>{68624fd8-c2d0-4afc-a88e-ea00b65fa79b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="recode">
-      <UniqueIdentifier>{2cb051b7-f35b-4365-a398-8716a43042ce}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="recode\image">
-      <UniqueIdentifier>{24c63b74-0636-4b9a-9fd0-023d20b6fb40}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="recode\primitive">
+    <Filter Include="Header Files\primitive">
       <UniqueIdentifier>{39125ce2-5e9e-4cb6-aa4a-1ff247d15a66}</UniqueIdentifier>
     </Filter>
-    <Filter Include="recode\stb">
+    <Filter Include="Header Files\stb">
       <UniqueIdentifier>{b12b612a-5d1f-4bca-87d4-61823c6da684}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="recode\go_main">
-      <UniqueIdentifier>{68624fd8-c2d0-4afc-a88e-ea00b65fa79b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -38,59 +29,56 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="utils.h">
-      <Filter>recode</Filter>
-    </ClInclude>
     <ClInclude Include="stb\stb_image.h">
-      <Filter>recode\stb</Filter>
+      <Filter>Header Files\stb</Filter>
     </ClInclude>
     <ClInclude Include="stb\stb_image_write.h">
-      <Filter>recode\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="recode\image.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\stb</Filter>
     </ClInclude>
     <ClInclude Include="recode\util.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\core.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\log.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\optimize.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\rand.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\shape.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\state.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\worker.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\model.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\go_main.h">
-      <Filter>recode\go_main</Filter>
+      <Filter>Header Files\go_main</Filter>
     </ClInclude>
     <ClInclude Include="recode\all.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\worker_func.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\circle.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\bundle.h">
-      <Filter>recode\primitive</Filter>
+      <Filter>Header Files\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -13,6 +13,7 @@ class Shape {
 		virtual Shape* Copy() = 0;
 		virtual void Mutate() = 0;
 
+		// TODO: Remove
 		virtual void Draw(Image* dc, Color c) = 0;
 		virtual char* BORST(char* attrs) = 0;
 };
