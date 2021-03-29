@@ -48,7 +48,7 @@ State* BestHillClimbState(Worker* worker, ShapeType t, int a, int n, int age, in
 		if(i == 0 || energy < bestEnergy) {
 			bestEnergy = energy;
 			bestState = state;
-			vv("[BestHillClimbState]: %dx before: %.6f -> %dx hill climb: %.6f\n", n, before, age, energy);
+			// vv("[BestHillClimbState]: %dx before: %.6f -> %dx hill climb: %.6f\n", n, before, age, energy);
 		}
 
 		if(bestState != state) {

@@ -19,7 +19,7 @@ class Circle : public Shape {
 			Rand* rnd = worker->rnd;
 			this->x = rnd->Intn(worker->w);
 			this->y = rnd->Intn(worker->h);
-			this->r = ARR_SIZES[rnd->Intn(NUM_SIZES)];// * paintingToolScale];
+			this->r = ARR_SIZES[rnd->Intn(NUM_SIZES)];
 		}
 
 		Circle(Worker* worker, int x, int y, int r) {
@@ -27,28 +27,6 @@ class Circle : public Shape {
 			this->x = x;
 			this->y = y;
 			this->r = r;
-		}
-
-
-		// TODO: This does the same thing as [drawLines] does!
-		// TODO: Remove
-		virtual void Draw(Image* dc, Color c) {
-			vector<Scanline> lines = Rasterize();
-
-			for(unsigned int i = 0; i < lines.size(); i++) {
-				Scanline line = lines[i];
-				int idx = dc->PixOffset(line.x1, line.y);
-
-				for(int x = line.x1; x <= line.x2; x++) {
-					Color& a = dc->Pix[idx++];
-
-					// color = (next.color * (next.alpha) + last.color * (255 - next.alpha)) / 255;
-					a.r = ((c.r * c.a) + (a.r * (255 - c.a))) / 255;
-					a.g = ((c.g * c.a) + (a.g * (255 - c.a))) / 255;
-					a.b = ((c.b * c.a) + (a.b * (255 - c.a))) / 255;
-					a.a = 255 - (((255 - a.a) * (255 - c.a)) / 255);
-				}
-			}
 		}
 
 		virtual char* BORST(char* attrs) {
@@ -88,12 +66,11 @@ class Circle : public Shape {
 			int h = worker->h;
 			
 			vector<Scanline> list = worker->lines;
-
 			for(int dy = 0; dy < r; dy++) {
 				int y1 = y - dy;
 				int y2 = y + dy;
 
-				// TODO: This is maybe not needed???
+				// TODO: Check if  this is needed
 				if((y1 < 0 || y1 >= h) && (y2 < 0 || y2 >= h)) {
 					continue;
 				}

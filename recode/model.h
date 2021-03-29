@@ -3,6 +3,8 @@
 
 #include <sstream>
 #include <vector>
+#include <stdio.h>
+
 using std::vector;
 using std::stringstream;
 
@@ -55,10 +57,14 @@ class Model {
 
 			// Create a new image with the specified background color
 			this->current = new Image(target->width, target->height);
-			// uniformRGBA(target.Bounds(), background.NRGBA())
+			
+			// memset(this->current->Pix, background.rgba, current->width * current->height * 4);
+			
+			// Maybe there is a way to speed this up?
 			for(int i = 0; i < w * h; i++) {
 				current->Pix[i].rgba = background.rgba;
 			}
+			
 
 			this->score = differenceFull(target, current);
 			this->context = new Image(target->width, target->height);
@@ -115,7 +121,8 @@ class Model {
 			colors.push_back(color);
 			scores.push_back(sc);
 
-			shape->Draw(context, color);
+			drawLines(context, color, lines);
+			// shape->Draw(context, color);
 		}
 
 		int Step(ShapeType shapeType, int alpha, int repeat) {

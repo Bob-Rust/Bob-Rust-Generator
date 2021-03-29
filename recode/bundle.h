@@ -23,7 +23,8 @@ class Image {
 		Image(unsigned int width, unsigned int height) {
 			this->width = width;
 			this->height = height;
-			this->Pix = new Color[width * height];
+			// The extra height is to prevent out of bounds errors because of insintric instructions
+			this->Pix = new Color[width * (height + 1)];
 		}
 
 		~Image() {

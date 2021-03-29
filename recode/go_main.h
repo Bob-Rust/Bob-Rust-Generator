@@ -42,21 +42,18 @@ int go_main(int argc, char** argv) {
 	for(int i = 0; i < Count; i++) {
 		frame++;
 
-		// Find optimal shape and add it to the model
 		auto start = high_resolution_clock::now();
-		
-		// t := time.Now()
 		int n = model->Step(Mode, Alpha, Repeat);
 		auto end = high_resolution_clock::now();
 		auto elapsed = duration_cast<milliseconds>(end - start); 
-		float nps = n / (duration_cast<milliseconds>(end - begin).count() + 0.0f); 
+		float nps = i / (duration_cast<seconds>(end - begin).count() + 0.0f); 
 
 
 		if((i % 40) == 0) {
 			v("%d: t=%.3f, score=%.6f, n=%d, n/s=%.2f\n", frame, elapsed.count() / 1000.0, model->score, n, nps);
 
 			std:stringstream stream;
-			stream << "C:/Users/Admin/source/repos/BorstPrimitive/Debug/outfolder/image" << "_" << i << ".png";
+			stream << "Debug/outfolder/image" << "_" << i << ".png";
 		
 			std::string str(stream.str());
 			char* stream_path = (char*)str.c_str();
