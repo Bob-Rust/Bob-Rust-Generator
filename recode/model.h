@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <stdio.h>
+#include <ppl.h>
 
 using std::vector;
 using std::stringstream;
@@ -15,6 +16,7 @@ using std::stringstream;
 #include "util.h"
 #include "../utils.h"
 
+
 class Model {
 	public:
 		int sw, sh;
@@ -22,7 +24,7 @@ class Model {
 		Color background;
 		Image* target;
 		Image* current;
-		Image* context; //void* Context; // Context    *gg.Context
+		Image* context;
 		float score;
 
 		vector<Shape*> shapes;
@@ -53,19 +55,14 @@ class Model {
 			this->sh = sh;
 			this->scale = scale;
 			this->background = background;
-			this->target = target; // model.Target = imageToRGBA(target)
+			this->target = target;
 
 			// Create a new image with the specified background color
 			this->current = new Image(target->width, target->height);
-			
-			// memset(this->current->Pix, background.rgba, current->width * current->height * 4);
-			
-			// Maybe there is a way to speed this up?
 			for(int i = 0; i < w * h; i++) {
 				current->Pix[i].rgba = background.rgba;
 			}
 			
-
 			this->score = differenceFull(target, current);
 			this->context = new Image(target->width, target->height);
 
@@ -102,7 +99,8 @@ class Model {
 			}
 
 			std::string str(stream.str());
-			// TODO: BAD
+
+			// TODO: Is this safe?
 			return (char*)str.c_str();
 		}
 
@@ -122,14 +120,10 @@ class Model {
 			scores.push_back(sc);
 
 			drawLines(context, color, lines);
-			// shape->Draw(context, color);
 		}
 
 		int Step(ShapeType shapeType, int alpha, int repeat) {
 			State* state = runWorkers(shapeType, alpha, 1000, 100, 16);
-			// Bad  memory
-
-			// state = HillClimb(state, 1000).(*State)
 			Add(state->shape, state->alpha);
 
 			for(int i = 0; i < repeat; i++) {
@@ -140,17 +134,12 @@ class Model {
 				float b = state->Energy();
 
 				if(a == b) {
-					//delete state;
+					delete state;
 					continue;
 				}
 
 				Add(state->shape, state->alpha);
 			}
-
-			// for _, w := range model.Workers[1:] {
-			// 	model.Workers[0].Heatmap.AddHeatmap(w.Heatmap)
-			// }
-			// SavePNG("heatmap.png", model.Workers[0].Heatmap.Image(0.5))
 
 			int counter = 0;
 			for(unsigned int i = 0; i < workers.size(); i++) {
@@ -161,28 +150,22 @@ class Model {
 		}
 
 		State* runWorkers(ShapeType t, int a, int n, int age, int m) {
-			int wn = workers.size();
-			vector<State*> ch;
-			ch.reserve(wn);
-			wn = m / wn;
+			int wn = m / workers.size();
+			// wn = m / wn;
 
-			// What does this even do?
 			if((m % wn) != 0) {
 				wn ++;
 			}
-
-			for(int i = 0; i < wn; i++) {
+			
+			vector<State*> ch(wn);
+			concurrency::parallel_for(size_t(0), size_t(wn), [&](int i) {
 				Worker* worker = workers[i];
 				worker->Init(current, score);
-
-				// This should be run in parallel
-				runWorker(worker, t, a, n, age, wn, ch);
-			}
+				ch[i] = runWorker(worker, t, a, n, age, wn);
+			});
 
 			float bestEnergy = 0;
 			State* bestState = 0;
-			// std::cout << "Size: expected: " << wn << ", got: " << ch.size() << "\n";
-
 			for(unsigned int i = 0; i < ch.size(); i++) {
 				State* state = ch[i];
 				float energy = state->Energy();
@@ -200,9 +183,8 @@ class Model {
 			return bestState;
 		}
 
-		void runWorker(Worker* worker, ShapeType t, int a, int n, int age, int m, vector<State*>& ch) {
-			// TODO: Make this thread safe
-			ch.push_back(BestHillClimbState(worker, t, a, n, age, m));
+		State* runWorker(Worker* worker, ShapeType t, int a, int n, int age, int m) {
+			return BestHillClimbState(worker, t, a, n, age, m);
 		}
 };
 

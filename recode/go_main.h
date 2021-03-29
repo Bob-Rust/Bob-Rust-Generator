@@ -28,39 +28,38 @@ int go_main(int argc, char** argv) {
 	Color bg{0,0,0,0xff};//Get this from the commandline 
 	
 
-	// Start the algorithm
+	// Create the model
 	Model* model = new Model(image, bg, OutputSize, numWorkers);
-	int Count = 4000;
+	int Count = 20000;
 	ShapeType Mode = ShapeType::ShapeTypeCircle;
 	int Alpha = 72;
 	int Repeat = 1;
 	v("count=%d, mode=%d, alpha=%d, repeat=%d\n", Count, Mode, Alpha, Repeat);
 	
-
 	auto begin = high_resolution_clock::now();
 	int frame = 0;
-	for(int i = 0; i < Count; i++) {
-		frame++;
-
+	for(int i = 0; i <= Count; i++) {
 		auto start = high_resolution_clock::now();
 		int n = model->Step(Mode, Alpha, Repeat);
 		auto end = high_resolution_clock::now();
-		auto elapsed = duration_cast<milliseconds>(end - start); 
-		float nps = i / (duration_cast<seconds>(end - begin).count() + 0.0f); 
-
-
-		if((i % 40) == 0) {
-			v("%d: t=%.3f, score=%.6f, n=%d, n/s=%.2f\n", frame, elapsed.count() / 1000.0, model->score, n, nps);
+		
+		if((i % 100) == 0) {
+			auto elapsed = duration_cast<milliseconds>(end - start); 
+			float nps = i / (duration_cast<seconds>(end - begin).count() + 0.0f); 
 
 			std:stringstream stream;
 			stream << "Debug/outfolder/image" << "_" << i << ".png";
-		
+			
 			std::string str(stream.str());
 			char* stream_path = (char*)str.c_str();
 
-			v("Save model to: '%s'\n", stream_path);
+			//v("Save model to: '%s'\n", stream_path);
+			v("%5d: t=%.3f ms, score=%.6f, n=%d ms, n/s=%.2f : '%s'\n", frame, elapsed.count() / 1000.0, model->score, n, nps, stream_path);
+
 			SavePNG(stream_path, &model->current[0]);
 		}
+
+		frame++;
 	}
 
 	return GO_MAIN_SUCCESSFULL;

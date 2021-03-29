@@ -54,11 +54,6 @@ Color computeColor(Image* target, Image* current, vector<Scanline>& lines, int a
 // This function calculates the best next color with a alpha values
 // This alpha check is done using a reverse alpha sum
 Color computeColor(Image* target, Image* current, vector<Scanline>& lines, int alpha) {
-	// * 257
-
-	// This will throw a division by zero exception if alpha is zero!
-	int a = 256 * 255 / alpha;
-	
 	// TODO: Calculate the total maximum value that rsum, gsum, bsum could hold and maybe
 	//       reduce the size from int64 to int
 	int64 rsum = 0;
@@ -67,28 +62,29 @@ Color computeColor(Image* target, Image* current, vector<Scanline>& lines, int a
 	int count = 0;
 	int w = target->width;
 
+	// This will throw a division by zero exception if alpha is zero
+	int pd = (255 << 8) / alpha;
+	int pa = (255 - alpha);
+
+	Color tt, cc;
 	for(unsigned int i = 0; i < lines.size(); i++) {
 		Scanline line = lines[i];
-		int idx = line.x1 + line.y * w; //target->PixOffset(line.x1, line.y);
-
-		Color* tta = target->Pix + idx - line.x1;
-		Color* cca = current->Pix + idx - line.x1;
+		int idx = line.y * w;
+		Color* tta = target->Pix + idx;
+		Color* cca = current->Pix + idx;
 
 		for(int x = line.x1; x <= line.x2; x++) {
-			Color tt = tta[x];
-			Color cc = cca[x];
-
-			int dtr = (int)tt.r - (int)cc.r;
-			int dtg = (int)tt.g - (int)cc.g;
-			int dtb = (int)tt.b - (int)cc.b;
-			rsum += int64(dtr * a + ((int)cc.r << 8)); // * 257
-			gsum += int64(dtg * a + ((int)cc.g << 8)); // * 257
-			bsum += int64(dtb * a + ((int)cc.b << 8)); // * 257
-			count++;
+			tt = tta[x];
+			cc = cca[x];
+			rsum += int64(((int)tt.r - (int)cc.r) * pd + (cc.r << 8));
+			gsum += int64(((int)tt.g - (int)cc.g) * pd + (cc.g << 8));
+			bsum += int64(((int)tt.b - (int)cc.b) * pd + (cc.b << 8));
 		}
+
+		count += (line.x2 - line.x1 + 1);
 	}
-	
-	// TODO: Unecessary check
+
+	// TODO: Unnecessary check
 	if(!count) return Color{0};
 
 	int r = (int)(rsum / count) >> 8;
@@ -122,50 +118,56 @@ void copyLines_replaceRegion(Image* dst, Image* src, vector<Scanline>& lines) {
 }
 
 void drawLines(Image* im, Color& c, vector<Scanline>& lines) {
-	int crca = (c.r * c.a);
-	int cgca = (c.g * c.a);
-	int cbca = (c.b * c.a);
-	int mmca = (255 - c.a);
+	int cr = (c.r * c.a);
+	int cg = (c.g * c.a);
+	int cb = (c.b * c.a);
+	int pa = (255 - c.a);
+	int w = im->width;
 
 	for(unsigned int i = 0; i < lines.size(); i++) {
 		Scanline line = lines[i];
-		int idx = im->PixOffset(line.x1, line.y);
+		Color* ima = im->Pix + line.y * w;
 
 		for(int x = line.x1; x <= line.x2; x++) {
-			Color& a = im->Pix[idx++];
-			a.r = (crca + (a.r * mmca)) >> 8;// 255;
-			a.g = (cgca + (a.g * mmca)) >> 8;// 255;
-			a.b = (cbca + (a.b * mmca)) >> 8;/// 255;
-			a.a = 255 - (((255 - a.a) * mmca) >> 8); ///255
+			Color& a = ima[x];
+			a.r = (cr + (a.r * pa)) >> 8;
+			a.g = (cg + (a.g * pa)) >> 8;
+			a.b = (cb + (a.b * pa)) >> 8;
+			a.a = 255 - (((255 - a.a) * pa) >> 8);
 		}
 	}
 }
 
+// TODO: Use insintric functions to speedup this method. (32x) using AVX2
 // [Only used once]
 float differenceFull(Image* a, Image* b) {
 	int w = a->width;
 	int h = a->height;
 
 	uint64 total = 0;
+	Color* aaa = a->Pix;
+	Color* bba = b->Pix;
+
+	Color aa, bb;
 	for(int y = 0; y < h; y++) {
-		int idx = y * w; // a->PixOffset(0, y);
+		//int idx = y * w; // a->PixOffset(0, y);
 
 		for(int x = 0; x < w; x++) {
-			Color aa = a->Pix[idx];
-			Color bb = b->Pix[idx];
-			idx++;
-
+			aa = aaa[x];
+			bb = bba[x];
 			int dr = (int)aa.r - (int)bb.r;
 			int dg = (int)aa.g - (int)bb.g;
 			int db = (int)aa.b - (int)bb.b;
 			int da = (int)aa.a - (int)bb.a;
 			total += uint64(dr*dr + dg*dg + db*db + da*da);
 		}
+
+		aaa += w;
+		bba += w;
 	}
 
 	return sqrt(total / (w * h * 4.0f)) / 255.0f;
 }
-
 
 // TODO: Use insintric functions to speedup this method.
 //       We could save 20% of the time maybe.
@@ -174,20 +176,19 @@ float differencePartial(Image* target, Image* before, Image* after, float score,
 	int h = target->height;
 	float denom = (w * h * 4.0f);
 	int64 total = (int64)(pow(score * 255, 2) * denom);
-
-	Color tt, bb, aa;
+	
 	for(unsigned int i = 0; i < lines.size(); i++) {
 		Scanline line = lines[i];
-		int idx = line.x1 + line.y * w;
+		int idx = line.y * w;
 
-		Color* tta = target->Pix + idx - line.x1;
-		Color* bba = before->Pix + idx - line.x1;
-		Color* aaa = after->Pix + idx - line.x1;
+		Color* tta = target->Pix + idx;
+		Color* bba = before->Pix + idx;
+		Color* aaa = after->Pix + idx;
 
 		for(int x = line.x1; x <= line.x2; x++) {
-			tt = tta[x];
-			bb = bba[x];
-			aa = aaa[x];
+			Color tt = tta[x];
+			Color bb = bba[x];
+			Color aa = aaa[x];
 			
 			int dr1 = (int)tt.r - (int)bb.r;
 			int dg1 = (int)tt.g - (int)bb.g;
@@ -203,7 +204,7 @@ float differencePartial(Image* target, Image* before, Image* after, float score,
 		}
 	}
 	
-	return sqrt(total / denom) * 0.003921568627451f; // 255
+	return sqrt(total / denom) * 0.003921568627451f;
 }
 
 /*
@@ -414,4 +415,5 @@ float differencePartial(Image* target, Image* before, Image* after, float score,
 	return sqrt(total / (w * h * 4.0f)) * 0.003921568627451f; // 255
 }
 */
+
 #endif

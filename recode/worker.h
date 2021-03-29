@@ -31,9 +31,11 @@ class Worker {
 		}
 
 		~Worker() {
+			// 'target' and 'current' should not be deleted
+			// because they do not belong to this object.
+
 			delete buffer;
 			delete rnd;
-			lines.clear(); // TODO: Delete
 		}
 
 		void Init(Image* current, float score) {
@@ -53,11 +55,9 @@ class Worker {
 
 			// Draw the lines with the new color to the buffer
 			drawLines(this->buffer, color, lines);
-
+			
 			// Get the difference over the drawn region compared to the current with the lines
 			float result = differencePartial(this->target, this->current, this->buffer, this->score, lines);
-			
-			// v("Energy: %.6f\n", result);
 
 			return result;
 		}
