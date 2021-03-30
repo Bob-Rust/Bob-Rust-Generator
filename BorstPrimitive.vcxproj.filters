@@ -22,6 +22,9 @@
     <Filter Include="Header Files\stb">
       <UniqueIdentifier>{b12b612a-5d1f-4bca-87d4-61823c6da684}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\cli">
+      <UniqueIdentifier>{ad557839-c6a9-43e0-8bae-562b38619354}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -41,16 +44,10 @@
     <ClInclude Include="recode\core.h">
       <Filter>Header Files\primitive</Filter>
     </ClInclude>
-    <ClInclude Include="recode\log.h">
-      <Filter>Header Files\primitive</Filter>
-    </ClInclude>
     <ClInclude Include="recode\optimize.h">
       <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\rand.h">
-      <Filter>Header Files\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="recode\shape.h">
       <Filter>Header Files\primitive</Filter>
     </ClInclude>
     <ClInclude Include="recode\state.h">

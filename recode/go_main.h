@@ -7,7 +7,6 @@ constexpr int GO_MAIN_ERROR = 0;
 using std::chrono::high_resolution_clock;
 using namespace std::chrono;
 
-#include "log.h"
 #include "util.h"
 #include "bundle.h"
 #include "model.h"
@@ -15,11 +14,11 @@ using namespace std::chrono;
 int go_main(int argc, char** argv) {
 	char* input = argv[0]; // First argument is the input file
 
-	v("Reading from the file '%s'\n", input);
+	printf("Reading from the file '%s'\n", input);
 
 	Image* image = LoadImage(input);
 	if(!image) {
-		v("Failed to read image '%s'\n", input);
+		printf("Failed to read image '%s'\n", input);
 		return GO_MAIN_ERROR;
 	}
 
@@ -31,30 +30,30 @@ int go_main(int argc, char** argv) {
 	// Create the model
 	Model* model = new Model(image, bg, OutputSize, numWorkers);
 	int Count = 20000;
-	ShapeType Mode = ShapeType::ShapeTypeCircle;
 	int Alpha = 72;
 	int Repeat = 1;
-	v("count=%d, mode=%d, alpha=%d, repeat=%d\n", Count, Mode, Alpha, Repeat);
+	printf("count=%d, alpha=%d, repeat=%d\n", Count, Alpha, Repeat);
 	
 	auto begin = high_resolution_clock::now();
 	int frame = 0;
 	for(int i = 0; i <= Count; i++) {
 		auto start = high_resolution_clock::now();
-		int n = model->Step(Mode, Alpha, Repeat);
+		int n = model->Step(Alpha, Repeat);
 		auto end = high_resolution_clock::now();
 		
 		if((i % 100) == 0) {
 			auto elapsed = duration_cast<milliseconds>(end - start); 
 			float nps = i / (duration_cast<seconds>(end - begin).count() + 0.0f); 
-
+			if(!isfinite(nps)) nps = 0;
+			
 			std:stringstream stream;
 			stream << "Debug/outfolder/image" << "_" << i << ".png";
 			
 			std::string str(stream.str());
 			char* stream_path = (char*)str.c_str();
 
-			//v("Save model to: '%s'\n", stream_path);
-			v("%5d: t=%.3f ms, score=%.6f, n=%d ms, n/s=%.2f : '%s'\n", frame, elapsed.count() / 1000.0, model->score, n, nps, stream_path);
+			//printf("Save model to: '%s'\n", stream_path);
+			printf("%5d: t=%.3f ms, score=%.6f, n=%d ms, n/s=%.2f : '%s'\n", frame, elapsed.count() / 1000.0, model->score, n, nps, stream_path);
 
 			SavePNG(stream_path, &model->current[0]);
 		}

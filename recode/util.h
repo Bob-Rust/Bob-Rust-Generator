@@ -4,7 +4,6 @@
 using std::ofstream;
 
 #include "bundle.h"
-#include "log.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 //#define STBI_ONLY_PNG
@@ -61,7 +60,7 @@ int SaveFile(char* path, char* contents) {
 	stream.open(path);
 
 	if(!stream) {
-		v("Failed to open input stream for path '%s'\n", path);
+		printf("Failed to open input stream for path '%s'\n", path);
 		return 0;
 	}
 
@@ -71,7 +70,21 @@ int SaveFile(char* path, char* contents) {
 }
 
 int SavePNG(char* path, Image* im) {
+	/*int w = im->width;
+	int h = im->height;
+
+	unsigned char* pixel_array = new unsigned char[w * h * 4];
+	for(int i = 0; i < w * h; i++) {
+		Color c = im->Pix[i];
+		pixel_array[i * 4    ] = c.r;
+		pixel_array[i * 4 + 1] = c.g;
+		pixel_array[i * 4 + 2] = c.b;
+		pixel_array[i * 4 + 3] = c.r;
+	}*/
+
 	return stbi_write_png(path, im->width, im->height, 4, (void*)im->Pix, 0);
+	//delete[] pixel_array;
+	//return result;
 }
 /*
 func SavePNG(path string, im image.Image) error {

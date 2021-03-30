@@ -8,26 +8,27 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-	v("Running the code...\n");
+	printf("Running the code...\n");
 
 	#ifdef DEBUG
 	{
 		// Initialize some special values
 		char* old = argv[0];
-		argv = new char*[2];
-
-		// Hacky...
+		
+		// Super hacky
+		argc = 1;
+		argv = new char*[argc];
 		argv[0] = (char*)"Debug/examples/wolf_512.png";
 	}
 	#endif
 	
-	v("Args:\n");
+	printf("Args:\n");
 	for(int i = 0; i < argc; i++) {
-		v(" [%d]: '%s'\n", i, argv[i]);
+		printf(" [%d]: '%s'\n", i, argv[i]);
 	}
-	v("\n");
+	printf("\n");
 	
-	go_main(2, argv);
+	go_main(argc, argv);
 	
 	return 0;
 }

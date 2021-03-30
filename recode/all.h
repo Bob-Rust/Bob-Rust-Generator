@@ -5,13 +5,11 @@
 
 // []
 #include "rand.h"
-#include "log.h"
 #include "../utils.h"
 
 // [log.h]
 #include "optimize.h"
 #include "util.h"
-#include "shape.h"
 #include "core.h"
 
 // [worker.h, rand.h]

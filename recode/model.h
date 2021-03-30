@@ -10,7 +10,7 @@ using std::vector;
 using std::stringstream;
 
 #include "bundle.h"
-#include "shape.h"
+#include "circle.h"
 #include "worker.h"
 #include "core.h"
 #include "util.h"
@@ -18,19 +18,21 @@ using std::stringstream;
 
 
 class Model {
-	public:
-		int sw, sh;
-		float scale;
+	private:
+		vector<Worker*> workers;
+		vector<Circle> shapes;
+		vector<Color> colors;
+		vector<float> scores;
 		Color background;
+		float scale;
+		int sw, sh;
+		
+	public:
 		Image* target;
 		Image* current;
 		Image* context;
 		float score;
 
-		vector<Shape*> shapes;
-		vector<Color> colors;
-		vector<float> scores;
-		vector<Worker*> workers;
 
 		Model(Image* target, Color background, int size, int numWorkers) {
 			int w = target->width;
@@ -41,7 +43,7 @@ class Model {
 			int sh = 0;
 			float scale = 0;
 
-			if(w >= h) { // if aspect >= 1 {
+			if(w >= h) {
 				sw = size;
 				sh = (int)(size / aspect);
 				scale = size / ((float)w);
@@ -60,7 +62,7 @@ class Model {
 			// Create a new image with the specified background color
 			this->current = new Image(target->width, target->height);
 			for(int i = 0; i < w * h; i++) {
-				current->Pix[i].rgba = background.rgba;
+				current->Pix[i] = background;
 			}
 			
 			this->score = differenceFull(target, current);
@@ -89,13 +91,13 @@ class Model {
 			stream << sw << "," << sh << "\n";
 
 			for(unsigned int i = 0; i < shapes.size(); i++) {
-				Shape* sp = shapes[i];
+				Circle& sp = shapes[i];
 
 				stringstream atts;
 				atts << closestColorIndex(colors[i]);
 
 				std::string str(atts.str());
-				stream << sp->BORST((char*)str.c_str()) << "\n";
+				stream << sp.BORST((char*)str.c_str()) << "\n";
 			}
 
 			std::string str(stream.str());
@@ -104,10 +106,10 @@ class Model {
 			return (char*)str.c_str();
 		}
 
-		void Add(Shape* shape, int alpha) {
+		void Add(Circle shape, int alpha) {
 			Image* before = copyRGBA(current);
 
-			vector<Scanline> lines = shape->Rasterize();
+			vector<Scanline> lines = shape.Rasterize();
 			Color color = computeColor(target, current, lines, alpha);
 			
 			drawLines(current, color, lines);
@@ -122,19 +124,26 @@ class Model {
 			drawLines(context, color, lines);
 		}
 
-		int Step(ShapeType shapeType, int alpha, int repeat) {
-			State* state = runWorkers(shapeType, alpha, 1000, 100, 16);
+		int Step(int alpha, int repeat) {
+			State* state = runWorkers(alpha, 1000, 100, 16);
 			Add(state->shape, state->alpha);
 
 			for(int i = 0; i < repeat; i++) {
 				state->worker->Init(current, score);
 				float a = state->Energy();
 
+				State* old = state;
 				state = (State*)HillClimb(state, 100);
 				float b = state->Energy();
 
 				if(a == b) {
-					delete state;
+					// This is unsafe because this state will be used to seed the last state
+					//delete state;
+
+					// This should ensure that we only delete the states that do not end up in memory
+					if(i > 0) delete old;
+					
+					// TODO: Fix this memory leak
 					continue;
 				}
 
@@ -149,7 +158,7 @@ class Model {
 			return counter;
 		}
 
-		State* runWorkers(ShapeType t, int a, int n, int age, int m) {
+		State* runWorkers(int a, int n, int age, int m) {
 			int wn = m / workers.size();
 			// wn = m / wn;
 
@@ -157,11 +166,12 @@ class Model {
 				wn ++;
 			}
 			
+			wn = 1;
 			vector<State*> ch(wn);
 			concurrency::parallel_for(size_t(0), size_t(wn), [&](int i) {
 				Worker* worker = workers[i];
 				worker->Init(current, score);
-				ch[i] = runWorker(worker, t, a, n, age, wn);
+				ch[i] = runWorker(worker, a, n, age, wn);
 			});
 
 			float bestEnergy = 0;
@@ -172,6 +182,7 @@ class Model {
 				
 				if(i == 0 || energy < bestEnergy) {
 					bestEnergy = energy;
+					delete bestState;
 					bestState = state;
 				}
 
@@ -183,8 +194,8 @@ class Model {
 			return bestState;
 		}
 
-		State* runWorker(Worker* worker, ShapeType t, int a, int n, int age, int m) {
-			return BestHillClimbState(worker, t, a, n, age, m);
+		State* runWorker(Worker* worker, int a, int n, int age, int m) {
+			return BestHillClimbState(worker, a, n, age, m);
 		}
 };
 

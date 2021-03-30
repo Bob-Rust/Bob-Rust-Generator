@@ -17,7 +17,6 @@ class Rand {
 		}
 
 		float NormFloat64() {
-			// TODO: Check if this works?
 			return distribution(generator);
 		}
 

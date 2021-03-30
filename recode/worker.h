@@ -1,5 +1,3 @@
-#pragma once
-
 #include "all.h"
 
 #ifndef __WORKER_H__
@@ -44,9 +42,9 @@ class Worker {
 			this->counter = 0;
 		}
 
-		float Energy(Shape* shape, int alpha) {
+		//float Energy(Circle shape, int alpha) {
+		float Energy(vector<Scanline>& lines, int alpha) {
 			this->counter++;
-			vector<Scanline> lines = shape->Rasterize();
 			
 			Color color = computeColor(this->target, this->current, lines, alpha);
 

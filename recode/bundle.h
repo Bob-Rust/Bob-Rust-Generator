@@ -7,7 +7,7 @@ typedef union Color {
 	struct {
 		unsigned char r, g, b, a;
 	};
-	unsigned int rgba;
+	//unsigned int rgba;
 };
 
 struct Scanline {
@@ -23,8 +23,7 @@ class Image {
 		Image(unsigned int width, unsigned int height) {
 			this->width = width;
 			this->height = height;
-			// The extra height is to prevent out of bounds errors because of insintric instructions
-			this->Pix = new Color[width * (height + 1)];
+			this->Pix = new Color[width * height];
 		}
 
 		~Image() {

@@ -148,12 +148,10 @@
     <ClInclude Include="recode\bundle.h" />
     <ClInclude Include="recode\core.h" />
     <ClInclude Include="recode\circle.h" />
-    <ClInclude Include="recode\log.h" />
     <ClInclude Include="recode\go_main.h" />
     <ClInclude Include="recode\model.h" />
     <ClInclude Include="recode\optimize.h" />
     <ClInclude Include="recode\rand.h" />
-    <ClInclude Include="recode\shape.h" />
     <ClInclude Include="recode\state.h" />
     <ClInclude Include="recode\util.h" />
     <ClInclude Include="recode\worker.h" />

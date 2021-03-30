@@ -2,17 +2,15 @@
 #define __CIRCLE_H_
 
 #include <sstream>
-
-#include "shape.h"
 #include "worker.h"
-#include "rand.h"
 #include "../utils.h"
 
-class Circle : public Shape {
-	public:
+class Circle {
+	private:
 		Worker* worker = 0;
 		int x, y, r;
 
+	public:
 		Circle(Worker* worker) {
 			this->worker = worker;
 
@@ -29,7 +27,7 @@ class Circle : public Shape {
 			this->r = r;
 		}
 
-		virtual char* BORST(char* attrs) {
+		char* BORST(char* attrs) {
 			std::stringstream stream;
 			stream << x << "," << y << "," << SIZE_INDEX(r) << attrs;
 
@@ -37,11 +35,7 @@ class Circle : public Shape {
 			return (char*)str.c_str();
 		}
 
-		virtual Circle* Copy() {
-			return new Circle(worker, x, y, r);
-		}
-
-		virtual void Mutate() {
+		void Mutate() {
 			int w = worker->w;
 			int h = worker->h;
 			Rand* rnd = worker->rnd;
@@ -61,7 +55,7 @@ class Circle : public Shape {
 			}
 		}
 
-		virtual vector<Scanline> Rasterize() {
+		vector<Scanline> Rasterize() {
 			int w = worker->w;
 			int h = worker->h;
 			
@@ -70,7 +64,7 @@ class Circle : public Shape {
 				int y1 = y - dy;
 				int y2 = y + dy;
 
-				// TODO: Check if  this is needed
+				// TODO: Check if this is needed
 				if((y1 < 0 || y1 >= h) && (y2 < 0 || y2 >= h)) {
 					continue;
 				}

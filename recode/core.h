@@ -4,52 +4,14 @@
 #ifndef __CORE_H__
 #define __CORE_H__
 
+#include <vector>
+using std::vector;
+
 #include "../utils.h"
 #include "bundle.h"
 
 typedef long long int64;
 typedef unsigned long long uint64;
-
-/*
-Color computeColor(Image* target, Image* current, vector<Scanline>& lines, int alpha) {
-	int a = 257 * 255 / alpha;
-
-	int64 rsum = 0;
-	int64 gsum = 0;
-	int64 bsum = 0;
-	int count = 0;
-
-	for(unsigned int i = 0; i < lines.size(); i++) {
-		Scanline line = lines[i];
-		int idx = target->PixOffset(line.x1, line.y);
-
-		for(int x = line.x1; x <= line.x2; x++) {
-			Color tt = target->Pix[idx];
-			Color cc = current->Pix[idx];
-			idx++;
-
-			rsum += ((int64)((int)tt.r - (int)cc.r) * a + ((int64)cc.r * 257));
-			gsum += ((int64)((int)tt.g - (int)cc.g) * a + ((int64)cc.g * 257));
-			bsum += ((int64)((int)tt.b - (int)cc.b) * a + ((int64)cc.b * 257));
-			count++;
-		}
-	}
-
-	// TODO: This could be bad!
-	if(!count) return Color{0,0,0,0};
-
-	int r = (int)(rsum / count) >> 8;
-	int g = (int)(gsum / count) >> 8;
-	int b = (int)(bsum / count) >> 8;
-	r = clampInt(r, 0, 255);
-	g = clampInt(g, 0, 255);
-	b = clampInt(b, 0, 255);
-
-	Color result{(unsigned char)r, (unsigned char)g, (unsigned char)b, (unsigned char)alpha};
-	result = closestColor(result);
-	return result;
-}
-*/
 
 // This function calculates the best next color with a alpha values
 // This alpha check is done using a reverse alpha sum
@@ -208,44 +170,36 @@ float differencePartial(Image* target, Image* before, Image* after, float score,
 }
 
 /*
-
 #include <immintrin.h>
+#include <emmintrin.h>
+#include <xmmintrin.h>
 
 // 32 bit
-static inline __m256i _mm256_abd_epu8(__m256i a, __m256i b) {
-    return _mm256_sub_epi8(_mm256_max_epu8(a, b), _mm256_min_epu8(a, b));
+static inline __m256 _mm256_abd_ps(__m256 a, __m256 b) {
+    return _mm256_sub_ps(_mm256_max_ps(a, b), _mm256_min_ps(a, b));
+}
+static inline __m256 _load_bytes_to_m256(void* p) {
+	__m128i a = _mm_loadu_si128((const __m128i*)p);
+	return _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(a));
 }
 
-static inline int _hsum_16x16(__m128i v) {
-	// (16x) 16-bit values
-	// __m256i a = _mm256_hadd_epi16(v, v);// [ 0 0 0 0   1 1 1 1   2 2 2 2   3 3 3 3 ]
-	
-	// (8x) 16-bit  values
-	/*__m128i aa = _mm_add_epi16(
-		_mm256_castsi256_si128(a),		// [ 0 0 0 0   1 1 1 1 ]
-		_mm256_extracti128_si256(a, 1)	// [ 2 2 2 2   3 3 3 3 ]
-	);									// [ a b c d   e f g h ]
-	
-
-	// Is this good?
-	__m128i a = _mm_hadd_epi16(v, v);// [ a+b c+d e+f g+h .... ]
-	a = _mm_hadd_epi16(a, a);// [ abcd efgh ...... ]
-	a = _mm_hadd_epi16(a, a);// [ abcdefgh ...... ]
-	return _mm_extract_epi16(a, 0);
+static inline float _mm256_sum_ps(__m256 x) {
+    __m128 hi = _mm256_extractf128_ps(x, 1);
+    __m128 lo = _mm256_extractf128_ps(x, 0);
+    lo = _mm_add_ps(hi, lo);
+    hi = _mm_movehl_ps(hi, lo);
+    lo = _mm_add_ps(hi, lo);
+    hi = _mm_shuffle_ps(lo, lo, 1);
+    lo = _mm_add_ss(hi, lo);
+    return _mm_cvtss_f32(lo);
 }
 
-// Using AVX?
 float differencePartial(Image* target, Image* before, Image* after, float score, vector<Scanline>& lines) {
 	int w = target->width;
 	int h = target->height;
 
-	// TODO: Calculate the total maximum value that total could hold and maybe
-	//       reduce the size from int64 to int
 	int64 total = (int64)(pow(score * 255, 2) * (w * h * 4.0f));
 	int64 told = total;
-	// Note that the largest a scanline could be with the current setup is 30 pixels wide
-	// Could this really be optimized?
-	// Images must be atleast 32 * 32 in size
 
 	int len = 0;
 	for(unsigned int i = 0; i < lines.size(); i++) {
@@ -253,7 +207,7 @@ float differencePartial(Image* target, Image* before, Image* after, float score,
 		len += line.x2 - line.x1;
 	}
 
-	int tbl = (len + 31) & (~31);
+	int tbl = (len + 8) & (~7);
 	int* T = new int[tbl];
 	int* B = new int[tbl];
 	int* A = new int[tbl];
@@ -277,143 +231,32 @@ float differencePartial(Image* target, Image* before, Image* after, float score,
 		midx += csz;
 	}
 
-	// The int lists are now filled with all the data that is needed and is a multiple of 32
-	int stg = tbl >> 5;
+	int stg = tbl >> 3;
 
-	
-	for(int i = 0; i < tbl; i += 32) {
-		T[0] = 0x00000104;
-		__m256i _t = *(__m256i*)(T + i);
-		__m256i _b = *(__m256i*)(B + i);
-		__m256i _a = *(__m256i*)(A + i);
-		// (32x)
+	__m256i zero = {0};
 
-		__m256i _tb = _mm256_abd_epu8(_t, _b);
-		__m256i _ta = _mm256_abd_epu8(_t, _a);
-		// (32x)
+	for(int i = 0; i < tbl; i += 8) {
+		// Load 8 bytes into memory
+		__m256 _t = _load_bytes_to_m256(T + i);
+		__m256 _b = _load_bytes_to_m256(T + i);
+		__m256 _a = _load_bytes_to_m256(T + i);
 
-		v("Aa: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d | %d, %d, %d, %d\n",
-			_mm256_extract_epi8(_tb, 0),
-			_mm256_extract_epi8(_tb, 1),
-			_mm256_extract_epi8(_tb, 2),
-			_mm256_extract_epi8(_tb, 3),
-			_mm256_extract_epi8(_tb, 4),
-			_mm256_extract_epi8(_tb, 5),
-			_mm256_extract_epi8(_tb, 6),
-			_mm256_extract_epi8(_tb, 7),
-			_mm256_extract_epi8(_tb, 8),
-			_mm256_extract_epi8(_tb, 9),
-			_mm256_extract_epi8(_tb, 10),
-			_mm256_extract_epi8(_tb, 11),
-			_mm256_extract_epi8(_tb, 12),
-			_mm256_extract_epi8(_tb, 13),
-			_mm256_extract_epi8(_tb, 14),
-			_mm256_extract_epi8(_tb, 15),
-			
-			_mm256_extract_epi8(_tb, 16),
-			_mm256_extract_epi8(_tb, 17),
-			_mm256_extract_epi8(_tb, 18),
-			_mm256_extract_epi8(_tb, 19)
-		);
+		// (8x) 32-bit
+		__m256 _tb = _mm256_abd_ps(_t, _b);
+		__m256 _ta = _mm256_abd_ps(_t, _a);
 
-		// (8x) 16-bit values
-		__m256i _tbb = _mm256_maddubs_epi16(_tb, _tb);
-		__m256i _taa = _mm256_maddubs_epi16(_ta, _ta);
-		// 16 values of 16-bit numbers
+		float _tt = _mm256_sum_ps(_mm256_sub_ps(_mm256_dp_ps(_ta, _ta, 0), _mm256_dp_ps(_tb, _tb, 0)));
+		int64 tcv = (int64)_tt;
 
-		v("A: %s\n", &_tbb);
-		v("Ex: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n",
-			_mm256_extract_epi16(_tbb, 0),
-			_mm256_extract_epi16(_tbb, 1),
-			_mm256_extract_epi16(_tbb, 2),
-			_mm256_extract_epi16(_tbb, 3),
-			_mm256_extract_epi16(_tbb, 4),
-			_mm256_extract_epi16(_tbb, 5),
-			_mm256_extract_epi16(_tbb, 6),
-			_mm256_extract_epi16(_tbb, 7),
-			_mm256_extract_epi16(_tbb, 8),
-			_mm256_extract_epi16(_tbb, 9),
-			_mm256_extract_epi16(_tbb, 10),
-			_mm256_extract_epi16(_tbb, 11),
-			_mm256_extract_epi16(_tbb, 12),
-			_mm256_extract_epi16(_tbb, 13),
-			_mm256_extract_epi16(_tbb, 14),
-			_mm256_extract_epi16(_tbb, 15)
-		);
-
-		int av = 0;//_hsum_16x16(_taa);
-		int bv = 0;//_hsum_16x16(_tbb);
-		total += av - bv;
-		v("NEW: %d, %d, %d, total: %d\n", i + 32, av, bv, total);
-
-		// 4 values of 32 bit numbers
-		//  Perform _taa - _tbb
+		printf("Testing: %d\n", tcv);
+		total += tcv;
 	}
 	
-	v("============================================\n");
-	total = told;
+	delete[] T;
+	delete[] B;
+	delete[] A;
 
-	int ASD = 0;
-	int tsc = 0;
-	int64 accA = 0;
-	int64 accB = 0;
-	Color tt, bb, aa;
-	for(unsigned int i = 0; i < lines.size(); i++) {
-		Scanline line = lines[i];
-		int idx = line.x1 + line.y * w;
-
-		Color* tta = (target->Pix + idx - line.x1);
-		Color* bba = (before->Pix + idx - line.x1);
-		Color* aaa = (after->Pix + idx - line.x1);
-
-		for(int x = line.x1; x <= line.x2; x++) {
-			tt = tta[x];
-			bb = bba[x];
-			aa = aaa[x];
-			
-			// 8 of them
-
-			
-			int dr1 = (int)tt.r - (int)bb.r;
-			int dg1 = (int)tt.g - (int)bb.g;
-			int db1 = (int)tt.b - (int)bb.b;
-			int da1 = (int)tt.a - (int)bb.a;
-			int dr2 = (int)tt.r - (int)aa.r;
-			int dg2 = (int)tt.g - (int)aa.g;
-			int db2 = (int)tt.b - (int)aa.b;
-			int da2 = (int)tt.a - (int)aa.a;
-			
-			
-			int bv = int64(dr1*dr1 + dg1*dg1 + db1*db1 + da1*da1);
-			int av = int64(dr2*dr2 + dg2*dg2 + db2*db2 + da2*da2);
-			total += av - bv;
-			accA += av;
-			accB += bv;
-			
-			//v("A: %d, %d, %d, %d\n", tt.r, tt.g, tt.b, tt.a);
-			//v("A: %d, %d, %d, %d\n", abs(dr1), abs(dg1), abs(db1), abs(da1));
-			v("Ex: %d, %d, %d, %d\n", dr1*dr1, dg1*dg1, db1*db1, da1*da1);
-
-			//printf("Check, %d, %d\n", T[ASD++], tta[x]);
-			int TSC = tsc;
-			if((tsc++ % 32) == 0) {
-				v("OLD: %d, %d, %d, total: %d\n", TSC + 32, accA, accB, total);
-				accA = 0;
-				accB = 0;
-			}
-		}
-	}
-
-	v("--------------------------------------------\n");
-
-	
-	
-	delete T;
-	delete B;
-	delete A;
-	*
 	return sqrt(total / (w * h * 4.0f)) * 0.003921568627451f; // 255
 }
 */
-
 #endif
