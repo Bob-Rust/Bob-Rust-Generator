@@ -7,11 +7,13 @@
 using std::vector;
 
 class Worker {
-	public:
-		int w, h;
+	private:
+		Image* buffer;
 		Image* target;
 		Image* current = 0;
-		Image* buffer;
+
+	public:
+		int w, h;
 		vector<Scanline> lines;
 		Rand* rnd;
 		float score = 0;
@@ -42,7 +44,6 @@ class Worker {
 			this->counter = 0;
 		}
 
-		//float Energy(Circle shape, int alpha) {
 		float Energy(vector<Scanline>& lines, int alpha) {
 			this->counter++;
 			
@@ -55,9 +56,7 @@ class Worker {
 			drawLines(this->buffer, color, lines);
 			
 			// Get the difference over the drawn region compared to the current with the lines
-			float result = differencePartial(this->target, this->current, this->buffer, this->score, lines);
-
-			return result;
+			return differencePartial(this->target, this->current, this->buffer, this->score, lines);
 		}
 };
 

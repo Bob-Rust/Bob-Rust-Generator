@@ -91,13 +91,10 @@ class Model {
 			stream << sw << "," << sh << "\n";
 
 			for(unsigned int i = 0; i < shapes.size(); i++) {
-				Circle& sp = shapes[i];
+				Circle& shape = shapes[i];
+				int color_index = closestColorIndex(colors[i]);
 
-				stringstream atts;
-				atts << closestColorIndex(colors[i]);
-
-				std::string str(atts.str());
-				stream << sp.BORST((char*)str.c_str()) << "\n";
+				stream << shape.x << "," << shape.y << "," << SIZE_INDEX(shape.r) << color_index << "\n";
 			}
 
 			std::string str(stream.str());
@@ -131,25 +128,21 @@ class Model {
 			for(int i = 0; i < repeat; i++) {
 				state->worker->Init(current, score);
 				float a = state->Energy();
-
-				State* old = state;
 				state = (State*)HillClimb(state, 100);
 				float b = state->Energy();
-
+				
 				if(a == b) {
-					// This is unsafe because this state will be used to seed the last state
-					//delete state;
-
-					// This should ensure that we only delete the states that do not end up in memory
-					if(i > 0) delete old;
-					
-					// TODO: Fix this memory leak
+					// TODO: Fix this memory leak!
+					//       We need to delete the state if it's not added but this
+					//       is hard because the state will be used for the next cycle
+					//       of the for loop.
 					continue;
 				}
-
+				
 				Add(state->shape, state->alpha);
 			}
 
+			
 			int counter = 0;
 			for(unsigned int i = 0; i < workers.size(); i++) {
 				counter += workers[i]->counter;
@@ -158,7 +151,8 @@ class Model {
 			return counter;
 		}
 
-		State* runWorkers(int a, int n, int age, int m) {
+		State* runWorkers(int alpha, int max_random_iter, int age, int m) {
+			/*
 			int wn = m / workers.size();
 			// wn = m / wn;
 
@@ -166,13 +160,14 @@ class Model {
 				wn ++;
 			}
 			
-			wn = 1;
+			wn = 5;
 			vector<State*> ch(wn);
-			concurrency::parallel_for(size_t(0), size_t(wn), [&](int i) {
+			for(int i = 0; i < wn; i++) {
+			//concurrency::parallel_for(size_t(0), size_t(wn), [&](int i) {
 				Worker* worker = workers[i];
 				worker->Init(current, score);
-				ch[i] = runWorker(worker, a, n, age, wn);
-			});
+				ch[i] = runWorker(worker, alpha, max_random_iter, age, wn);
+			}//);
 
 			float bestEnergy = 0;
 			State* bestState = 0;
@@ -192,10 +187,15 @@ class Model {
 			}
 
 			return bestState;
+			*/
+
+			Worker* worker = workers[0];
+			worker->Init(current, score);
+			return runWorker(worker, alpha, max_random_iter, age, 1); // This should be m
 		}
 
-		State* runWorker(Worker* worker, int a, int n, int age, int m) {
-			return BestHillClimbState(worker, a, n, age, m);
+		State* runWorker(Worker* worker, int alpha, int max_random_iter, int age, int max_climb_iter) {
+			return BestHillClimbState(worker, alpha, max_random_iter, age, max_climb_iter);
 		}
 };
 

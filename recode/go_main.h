@@ -46,7 +46,7 @@ int go_main(int argc, char** argv) {
 			float nps = i / (duration_cast<seconds>(end - begin).count() + 0.0f); 
 			if(!isfinite(nps)) nps = 0;
 			
-			std:stringstream stream;
+			std::stringstream stream;
 			stream << "Debug/outfolder/image" << "_" << i << ".png";
 			
 			std::string str(stream.str());

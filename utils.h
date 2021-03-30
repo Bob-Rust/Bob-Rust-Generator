@@ -36,7 +36,7 @@
 	const int SIZES_TO_IDX[] { 0, 0, 1, 0, 2, 0, 3, 0, 0, 0, 4, 0, 0, 5 };
 	#define SIZE_INDEX(size) SIZES_TO_IDX[size]
 
-	#define COLOR(R,G,B,A) Color{(unsigned char)R, (unsigned char)G, (unsigned char)B, (unsigned char)A}
+	#define COLOR(r,g,b,a) Color{(unsigned char)r, (unsigned char)g, (unsigned char)b, (unsigned char)a}
 // Colors
 	constexpr char COMMON_OPACITY = 72;
 	constexpr int NUM_COLORS = 20;

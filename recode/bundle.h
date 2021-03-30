@@ -3,11 +3,8 @@
 #ifndef __BUNDLE_H__
 #define __BUNDLE_H__
 
-typedef union Color {
-	struct {
-		unsigned char r, g, b, a;
-	};
-	//unsigned int rgba;
+struct Color {
+	unsigned char r, g, b, a;
 };
 
 struct Scanline {
@@ -28,10 +25,6 @@ class Image {
 
 		~Image() {
 			delete[] Pix;
-		}
-
-		int PixOffset(int x, int y) {
-			return x + y * this->width;
 		}
 };
 

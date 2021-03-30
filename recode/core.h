@@ -69,13 +69,6 @@ void copyLines_replaceRegion(Image* dst, Image* src, vector<Scanline>& lines) {
 		int idx = line.x1 + line.y * w;
 		
 		memcpy(dst->Pix + idx, src->Pix + idx, (line.x2 - line.x1 + 1) * sizeof(Color));
-		/*
-		// TODO: Use memcpy
-		for(int x = line.x1; x < line.x2; x++) {
-			dst->Pix[idx] = src->Pix[idx];
-			idx++;
-		}
-		*/
 	}
 }
 
@@ -100,7 +93,6 @@ void drawLines(Image* im, Color& c, vector<Scanline>& lines) {
 	}
 }
 
-// TODO: Use insintric functions to speedup this method. (32x) using AVX2
 // [Only used once]
 float differenceFull(Image* a, Image* b) {
 	int w = a->width;
@@ -112,8 +104,6 @@ float differenceFull(Image* a, Image* b) {
 
 	Color aa, bb;
 	for(int y = 0; y < h; y++) {
-		//int idx = y * w; // a->PixOffset(0, y);
-
 		for(int x = 0; x < w; x++) {
 			aa = aaa[x];
 			bb = bba[x];
@@ -131,8 +121,6 @@ float differenceFull(Image* a, Image* b) {
 	return sqrt(total / (w * h * 4.0f)) / 255.0f;
 }
 
-// TODO: Use insintric functions to speedup this method.
-//       We could save 20% of the time maybe.
 float differencePartial(Image* target, Image* before, Image* after, float score, vector<Scanline>& lines) {
 	int w = target->width;
 	int h = target->height;

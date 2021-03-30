@@ -8,9 +8,10 @@
 class Circle {
 	private:
 		Worker* worker = 0;
-		int x, y, r;
 
 	public:
+		int x, y, r;
+
 		Circle(Worker* worker) {
 			this->worker = worker;
 
