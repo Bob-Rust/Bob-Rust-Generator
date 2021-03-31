@@ -1,34 +1,19 @@
-#define DEBUG
+// #include "exporting.h"
 
 #include <iostream>
-
 #include "recode/all.h"
 #include "recode/go_main.h"
 
 using namespace std;
 
 int main(int argc, char** argv) {
-	printf("Running the code...\n");
-
-	#ifdef DEBUG
-	{
-		// Initialize some special values
-		char* old = argv[0];
-		
-		// Super hacky
-		argc = 1;
-		argv = new char*[argc];
-		argv[0] = (char*)"Debug/examples/wolf_512.png";
-	}
-	#endif
+	Settings set;
+	set.ImagePath = (char*)"Debug/examples/wolf_512.png";
+	set.CallbackShapes = 100;
+	set.MaxShapes = 8000;
+	set.OutputSize = 1;
+	set.Background = Color{0, 0, 0, 0};
+	set.Alpha = 2;
 	
-	printf("Args:\n");
-	for(int i = 0; i < argc; i++) {
-		printf(" [%d]: '%s'\n", i, argv[i]);
-	}
-	printf("\n");
-	
-	go_main(argc, argv);
-	
-	return 0;
+	return run_borst_generator(set);
 }

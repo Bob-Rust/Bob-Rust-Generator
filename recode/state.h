@@ -6,16 +6,23 @@
 #include "circle.h"
 #include "rand.h"
 
+// TODO: Remove all state pointers and replace with non pointer stuff
+//       If we remove the pointer from all states we would not need to
+//       call delete on every single one. This could save both memory
+//       and time.
+//       Investigate if this is possible.
+
+// 32 bytes per state, (+ vtable)
 class State : public Annealable {
 	private:
 		// [Legacy]
-		bool mutateAlpha;
+		bool mutateAlpha; // 1/4
 
 	public:
-		Worker* worker;
-		Circle shape;
-		float score;
-		int alpha;
+		Worker* worker; // 4
+		Circle shape; // 16
+		float score; // 4
+		int alpha; // 4
 
 		State(Worker* worker, int alpha) : shape(worker) {
 			this->worker = worker;
@@ -24,8 +31,7 @@ class State : public Annealable {
 			this->score = -1;
 		}
 
-		State(Worker* worker, Circle& sh, int alpha, bool mutateAlpha, float score)
-				: shape(sh) {
+		State(Worker* worker, Circle& sh, int alpha, bool mutateAlpha, float score) : shape(sh) {
 			this->worker = worker;
 			this->alpha = alpha;
 			this->mutateAlpha = mutateAlpha;

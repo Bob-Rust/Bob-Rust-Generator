@@ -7,6 +7,27 @@ struct Color {
 	unsigned char r, g, b, a;
 };
 
+struct Settings {
+	// A path to the image that should be loaded
+	char* ImagePath = 0;
+
+	// How many shapes to generate before it sends
+	// the data back to the caller.
+	int CallbackShapes = 100;
+
+	// The max amount of shapes to generate.
+	int MaxShapes = 4000;
+
+	// ???
+	int OutputSize = 1;
+
+	// The default background color of the canvas.
+	Color Background{0, 0, 0, 0xff};
+
+	// The default alpha value.
+	int Alpha = 2;
+};
+
 struct Scanline {
 	int y, x1, x2;
 };

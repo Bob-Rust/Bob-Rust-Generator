@@ -103,6 +103,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\node\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,6 +133,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\node\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -144,6 +146,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="exporting.h" />
     <ClInclude Include="recode\all.h" />
     <ClInclude Include="recode\bundle.h" />
     <ClInclude Include="recode\core.h" />

@@ -5,6 +5,7 @@
 #include "worker.h"
 #include "../utils.h"
 
+// 16 bytes
 class Circle {
 	private:
 		Worker* worker = 0;

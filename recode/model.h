@@ -19,7 +19,7 @@ using std::stringstream;
 
 class Model {
 	private:
-		vector<Worker*> workers;
+		Worker* worker;
 		vector<Circle> shapes;
 		vector<Color> colors;
 		vector<float> scores;
@@ -33,8 +33,7 @@ class Model {
 		Image* context;
 		float score;
 
-
-		Model(Image* target, Color background, int size, int numWorkers) {
+		Model(Image* target, Color background, int size) {
 			int w = target->width;
 			int h = target->height;
 
@@ -68,21 +67,17 @@ class Model {
 			this->score = differenceFull(target, current);
 			this->context = new Image(target->width, target->height);
 
-			workers.reserve(numWorkers);
-			for(int i = 0; i < numWorkers; i++) {
-				workers.push_back(new Worker(target));
-			}
+			worker = new Worker(target);
 		}
 
 		~Model() {
-			workers.clear();
 			colors.clear();
 			scores.clear();
 			shapes.clear();
-			// TODO: Release all workers
-			// TODO: Release all shapes
-
+			
+			delete worker;
 			delete context;
+			delete current;
 		}
 
 		char* BORST() {
@@ -124,74 +119,46 @@ class Model {
 		int Step(int alpha, int repeat) {
 			State* state = runWorkers(alpha, 1000, 100, 16);
 			Add(state->shape, state->alpha);
-
-			for(int i = 0; i < repeat; i++) {
-				state->worker->Init(current, score);
-				float a = state->Energy();
-				state = (State*)HillClimb(state, 100);
-				float b = state->Energy();
-				
-				if(a == b) {
-					// TODO: Fix this memory leak!
-					//       We need to delete the state if it's not added but this
-					//       is hard because the state will be used for the next cycle
-					//       of the for loop.
-					continue;
-				}
-				
-				Add(state->shape, state->alpha);
-			}
-
 			
-			int counter = 0;
-			for(unsigned int i = 0; i < workers.size(); i++) {
-				counter += workers[i]->counter;
+			vector<State*> unload;
+			unload.reserve(repeat + 1);
+			unload.push_back(state);
+
+			if(repeat > 0) {
+				State* last = state;
+				for(int i = 0; i < repeat; i++) {
+					// Get the worker state and initialize new values
+					last->worker->Init(current, score); // (0)
+					float a = last->Energy();
+
+					// Add the last state to the unload vector
+					State* next = (State*)HillClimb(last, 100);
+					float b = next->Energy();
+					unload.push_back(next);
+					
+					if(a != b) {
+						Add(next->shape, next->alpha);
+					}
+
+					last = next;
+				}
 			}
+
+			for(unsigned i = 0; i < unload.size(); i++) {
+				delete unload[i];
+			}
+
+			int counter = this->worker->counter;
 
 			return counter;
 		}
 
 		State* runWorkers(int alpha, int max_random_iter, int age, int m) {
-			/*
-			int wn = m / workers.size();
-			// wn = m / wn;
-
-			if((m % wn) != 0) {
-				wn ++;
-			}
-			
-			wn = 5;
-			vector<State*> ch(wn);
-			for(int i = 0; i < wn; i++) {
-			//concurrency::parallel_for(size_t(0), size_t(wn), [&](int i) {
-				Worker* worker = workers[i];
-				worker->Init(current, score);
-				ch[i] = runWorker(worker, alpha, max_random_iter, age, wn);
-			}//);
-
-			float bestEnergy = 0;
-			State* bestState = 0;
-			for(unsigned int i = 0; i < ch.size(); i++) {
-				State* state = ch[i];
-				float energy = state->Energy();
-				
-				if(i == 0 || energy < bestEnergy) {
-					bestEnergy = energy;
-					delete bestState;
-					bestState = state;
-				}
-
-				if(bestState != state) {
-					delete state;
-				}
-			}
-
-			return bestState;
-			*/
-
-			Worker* worker = workers[0];
+			Worker* worker = this->worker;
 			worker->Init(current, score);
-			return runWorker(worker, alpha, max_random_iter, age, 1); // This should be m
+
+			// Because we are only using 1 shape. Creating multiple workers is not beneficial
+			return runWorker(worker, alpha, max_random_iter, age, 1);
 		}
 
 		State* runWorker(Worker* worker, int alpha, int max_random_iter, int age, int max_climb_iter) {
