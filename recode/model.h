@@ -33,7 +33,7 @@ class Model {
 		Image* context;
 		float score;
 
-		Model(Image* target, Color background, int size) {
+		Model(Image* target, Color background) {
 			int w = target->width;
 			int h = target->height;
 

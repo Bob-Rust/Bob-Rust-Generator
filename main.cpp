@@ -12,7 +12,6 @@ int main(int argc, char** argv) {
 	set.ImagePath = (char*)"Debug/examples/wolf_512.png";
 	set.CallbackShapes = 100;
 	set.MaxShapes = 8000;
-	set.OutputSize = 1;
 	set.Background = Color{0, 0, 0, 0};
 	set.Alpha = 2;
 	

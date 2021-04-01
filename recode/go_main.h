@@ -25,7 +25,7 @@ int run_borst_generator(Settings settings) {
 		return BORST_INVALID_IMAGE;
 	}
 
-	Model* model = new Model(image, settings.Background, settings.OutputSize);
+	Model* model = new Model(image, settings.Background);
 	const int Count = settings.MaxShapes;
 	const int Callb = settings.CallbackShapes;
 	const int Alpha = ARR_ALPHAS[settings.Alpha];
@@ -70,7 +70,7 @@ int run_borst_generator(Settings settings) {
 	Image* image = LoadImage(input);
 	if(!image) return BORST_INVALID_IMAGE;
 
-	Model* model = new Model(image, settings.Background, settings.OutputSize);
+	Model* model = new Model(image, settings.Background);
 	const int Count = settings.MaxShapes;
 	const int Callb = settings.CallbackShapes;
 	const int Alpha = ARR_ALPHAS[settings.Alpha];

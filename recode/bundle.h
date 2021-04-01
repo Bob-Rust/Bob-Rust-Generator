@@ -18,9 +18,6 @@ struct Settings {
 	// The max amount of shapes to generate.
 	int MaxShapes = 4000;
 
-	// ???
-	int OutputSize = 1;
-
 	// The default background color of the canvas.
 	Color Background{0, 0, 0, 0xff};
 
