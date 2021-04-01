@@ -27,26 +27,26 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -100,6 +100,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,6 +133,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,27 +161,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="borst_object.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\borst_object.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="borst_object.h" />
-    <ClInclude Include="exporting.h" />
-    <ClInclude Include="recode\all.h" />
-    <ClInclude Include="recode\bundle.h" />
-    <ClInclude Include="recode\core.h" />
-    <ClInclude Include="recode\circle.h" />
-    <ClInclude Include="recode\go_main.h" />
-    <ClInclude Include="recode\model.h" />
-    <ClInclude Include="recode\optimize.h" />
-    <ClInclude Include="recode\rand.h" />
-    <ClInclude Include="recode\state.h" />
-    <ClInclude Include="recode\util.h" />
-    <ClInclude Include="recode\worker.h" />
-    <ClInclude Include="recode\worker_func.h" />
-    <ClInclude Include="stb\stb_image.h" />
-    <ClInclude Include="stb\stb_image_write.h" />
-    <ClInclude Include="utils.h" />
+    <ClInclude Include="src\borst_object.h" />
+    <ClInclude Include="src\exporting.h" />
+    <ClInclude Include="src\recode\all.h" />
+    <ClInclude Include="src\recode\bundle.h" />
+    <ClInclude Include="src\recode\core.h" />
+    <ClInclude Include="src\recode\circle.h" />
+    <ClInclude Include="src\recode\go_main.h" />
+    <ClInclude Include="src\recode\model.h" />
+    <ClInclude Include="src\recode\rand.h" />
+    <ClInclude Include="src\recode\state.h" />
+    <ClInclude Include="src\recode\util.h" />
+    <ClInclude Include="src\recode\worker.h" />
+    <ClInclude Include="src\recode\worker_func.h" />
+    <ClInclude Include="src\stb\stb_image.h" />
+    <ClInclude Include="src\stb\stb_image_write.h" />
+    <ClInclude Include="src\utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

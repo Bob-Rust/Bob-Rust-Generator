@@ -1,5 +1,4 @@
 // This will export some functions to Node.js
-
 #ifdef BUILD_NODE
 #define BUILDING_NODE_EXTENSION
 #include <node.h>
@@ -96,7 +95,7 @@ namespace bob_rust_generator {
 		
 		Color bg{ 0, 0, 0, 0xff };
 		{
-			Local<v8::Array> opt_bg = m_opt_bg->ToObject(context).ToLocalChecked();
+			Local<v8::Array> opt_bg = m_opt_bg->ToObject(context).ToLocalChecked().As<v8::Array>();
 			IS_OR_THROW_EXCEPTION(isolate, opt_bg->Length() != 3, "The property 'background' was not a color [ r, g, b, ]")
 
 			Local<Value> col_r = opt_bg->Get(context, 0).ToLocalChecked();
@@ -111,11 +110,11 @@ namespace bob_rust_generator {
 			bg.g = (unsigned char)col_g->IntegerValue(context).FromMaybe(0);
 			bg.b = (unsigned char)col_b->IntegerValue(context).FromMaybe(0);
 		}
-
+		/*
 		// This needs to be deleted with free()
 		Settings settings;
 		String::Utf8Value str(isolate, m_opt_path->ToString(context).ToLocalChecked());
-		settings.ImagePath = strdup(*str);
+		settings.ImagePath = _strdup(*str);
 		settings.MaxShapes = m_opt_count->IntegerValue(context).FromMaybe(0);
 		settings.Alpha = m_opt_alpha->IntegerValue(context).FromMaybe(0);
 		settings.CallbackShapes = m_opt_intervall->IntegerValue(context).FromMaybe(0);
@@ -131,6 +130,7 @@ namespace bob_rust_generator {
 
 		// Settings is not used yet so instead of introducing a memory leak we free it
 		free(settings.ImagePath);
+		/**/
 	}
 
 	void Initialize(Local<Object> exports) {

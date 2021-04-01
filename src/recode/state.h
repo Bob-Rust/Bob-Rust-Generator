@@ -2,18 +2,11 @@
 #define __STATE_H__
 
 #include "../utils.h"
-#include "optimize.h"
 #include "circle.h"
 #include "rand.h"
 
-// TODO: Remove all state pointers and replace with non pointer stuff
-//       If we remove the pointer from all states we would not need to
-//       call delete on every single one. This could save both memory
-//       and time.
-//       Investigate if this is possible.
-
 // 32 bytes per state, (+ vtable)
-class State : public Annealable {
+class State {
 	private:
 		// [Legacy]
 		bool mutateAlpha;
@@ -23,7 +16,8 @@ class State : public Annealable {
 		Circle shape;
 		float score;
 		int alpha;
-
+		
+		State() {}
 		State(Worker* worker, int alpha) : shape(worker) {
 			this->worker = worker;
 			this->alpha = (alpha == 0 ? 128:alpha);
@@ -42,7 +36,7 @@ class State : public Annealable {
 			worker = 0;
 		}
 
-		virtual float Energy() {
+		float Energy() {
 			if(score < 0) {
 				vector<Scanline> list = shape.Rasterize();
 
@@ -52,8 +46,8 @@ class State : public Annealable {
 			return score;
 		}
 
-		virtual State* DoMove() {
-			State* oldState = Copy();
+		State DoMove() {
+			State oldState = Copy();
 			shape.Mutate();
 
 			if(mutateAlpha) {
@@ -65,16 +59,45 @@ class State : public Annealable {
 			return oldState;
 		}
 
-		virtual void UndoMove(Annealable* state) {
-			State* oldState = (State*)state;
-			shape = oldState->shape;
-			alpha = oldState->alpha;
-			score = oldState->score;
+		void UndoMove(State oldState) {
+			shape = oldState.shape;
+			alpha = oldState.alpha;
+			score = oldState.score;
 		}
 
-		virtual State* Copy() {
-			return new State(worker, shape, alpha, mutateAlpha, score);
+		// Create a copy that wont generate a new pointer
+		State Copy() {
+			return State(worker, shape, alpha, mutateAlpha, score);
 		}
 };
+
+State HillClimb(State inp, int maxAge) {
+	State state = inp;
+
+	State bestState = inp;
+	float minimumEnergy = state.Energy();
+
+	// This function will minimize the energy of the input state
+	int step = 0;
+	for(int age = 0; age < maxAge; age++) {
+		State undo = state.DoMove();
+		float energy = state.Energy();
+
+		if(energy >= minimumEnergy) {
+			// Changes the old state
+			
+			state.UndoMove(undo);
+		} else {
+			//printf("step: %d, energy: %.6f\n", step, energy);
+			minimumEnergy = energy;
+			bestState = state;
+			age = -1;
+		}
+		
+		step++;
+	}
+
+	return bestState;
+}
 
 #endif

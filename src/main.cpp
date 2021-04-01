@@ -1,9 +1,9 @@
-//#define BUILD_NODE
+#define BUILD_NODE
 
 #include <iostream>
 #include "recode/all.h"
 #include "recode/go_main.h"
-// #include "exporting.h"
+#include "exporting.h"
 
 using namespace std;
 

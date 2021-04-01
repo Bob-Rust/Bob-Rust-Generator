@@ -101,43 +101,32 @@ class Model {
 		}
 
 		int Step(int alpha, int repeat) {
-			State* state = runWorkers(alpha, 1000, 100, 16);
-			Add(state->shape, state->alpha);
+			State state = runWorkers(alpha, 1000, 100, 16);
+			Add(state.shape, state.alpha);
 			
-			vector<State*> unload;
-			unload.reserve(repeat + 1);
-			unload.push_back(state);
-
 			if(repeat > 0) {
-				State* last = state;
+				State last = state;
 				for(int i = 0; i < repeat; i++) {
 					// Get the worker state and initialize new values
-					last->worker->Init(current, score); // (0)
-					float a = last->Energy();
+					last.worker->Init(current, score);
+					float a = last.Energy();
 
 					// Add the last state to the unload vector
-					State* next = (State*)HillClimb(last, 100);
-					float b = next->Energy();
-					unload.push_back(next);
+					State next = HillClimb(last, 100);
+					float b = next.Energy();
 					
 					if(a != b) {
-						Add(next->shape, next->alpha);
+						Add(next.shape, next.alpha);
 					}
 
 					last = next;
 				}
 			}
 
-			for(unsigned i = 0; i < unload.size(); i++) {
-				delete unload[i];
-			}
-
-			int counter = this->worker->counter;
-
-			return counter;
+			return this->worker->counter;
 		}
 
-		State* runWorkers(int alpha, int max_random_iter, int age, int m) {
+		State runWorkers(int alpha, int max_random_iter, int age, int m) {
 			Worker* worker = this->worker;
 			worker->Init(current, score);
 
@@ -145,7 +134,7 @@ class Model {
 			return runWorker(worker, alpha, max_random_iter, age, 1);
 		}
 
-		State* runWorker(Worker* worker, int alpha, int max_random_iter, int age, int max_climb_iter) {
+		State runWorker(Worker* worker, int alpha, int max_random_iter, int age, int max_climb_iter) {
 			return BestHillClimbState(worker, alpha, max_random_iter, age, max_climb_iter);
 		}
 };

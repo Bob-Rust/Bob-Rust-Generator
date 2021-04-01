@@ -3,6 +3,8 @@
 #ifndef __WORKER_H__
 #define __WORKER_H__
 
+#include "core.h"
+
 #include <vector>
 using std::vector;
 

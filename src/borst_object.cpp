@@ -5,24 +5,6 @@
 
 using namespace v8;
 
-/*
-Local<Value> bob_rust_generator::create_borst_object(Isolate* isolate, Circle shape, Color color) {
-	Local<Context> context = isolate->GetCurrentContext();
-	Local<Object> obj = Object::New(isolate);
-
-	int x = shape.x;
-	int y = shape.y;
-	int s = SIZE_INDEX(shape.r);
-	int c = COLOR_INDEX(color);
-
-	obj->Set(context, String::NewFromUtf8(isolate, "x").ToLocalChecked(), Integer::New(isolate, x));
-	obj->Set(context, String::NewFromUtf8(isolate, "y").ToLocalChecked(), Integer::New(isolate, y));
-	obj->Set(context, String::NewFromUtf8(isolate, "size").ToLocalChecked(), Integer::New(isolate, s));
-	obj->Set(context, String::NewFromUtf8(isolate, "color").ToLocalChecked(), Integer::New(isolate, c));
-	return obj;
-}
-*/
-
 Local<Array> bob_rust_generator::create_borst_list(Isolate* isolate, Model* model, int count) {
 	Local<Context> context = isolate->GetCurrentContext();
 	Local<Array> array = Array::New(isolate, count);

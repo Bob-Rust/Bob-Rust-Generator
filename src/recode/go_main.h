@@ -48,10 +48,8 @@ int run_borst_generator(Settings settings) {
 			float nps = i / (duration_cast<seconds>(end - begin).count() + 0.0f); 
 			if(!isfinite(nps)) nps = 0;
 
-			std::stringstream stream;
-			stream << "Debug/outfolder/image" << "_" << i << ".png";
-			std::string str(stream.str());
-			char* stream_path = (char*)str.c_str();
+			char stream_path[256];
+			sprintf_s(stream_path, "Debug/outfolder/image_%d.png", i);
 
 			printf("%5d: t=%.3f ms, score=%.6f, n=%d ms, n/s=%.2f : '%s'\n", i, elapsed.count() / 1000.0, model->score, n, nps, stream_path);
 			SavePNG(stream_path, &model->current[0]);

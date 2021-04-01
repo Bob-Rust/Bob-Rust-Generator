@@ -30,64 +30,61 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="src\borst_object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="borst_object.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stb\stb_image.h">
+    <ClInclude Include="src\recode\all.h">
+      <Filter>Header Files\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\recode\bundle.h">
+      <Filter>Header Files\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\recode\circle.h">
+      <Filter>Header Files\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\recode\core.h">
+      <Filter>Header Files\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\recode\model.h">
+      <Filter>Header Files\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\recode\rand.h">
+      <Filter>Header Files\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\recode\state.h">
+      <Filter>Header Files\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\recode\util.h">
+      <Filter>Header Files\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\recode\worker.h">
+      <Filter>Header Files\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\recode\worker_func.h">
+      <Filter>Header Files\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stb\stb_image.h">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
-    <ClInclude Include="stb\stb_image_write.h">
+    <ClInclude Include="src\stb\stb_image_write.h">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
-    <ClInclude Include="recode\util.h">
-      <Filter>Header Files\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="recode\core.h">
-      <Filter>Header Files\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="recode\optimize.h">
-      <Filter>Header Files\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="recode\rand.h">
-      <Filter>Header Files\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="recode\state.h">
-      <Filter>Header Files\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="recode\worker.h">
-      <Filter>Header Files\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="recode\model.h">
-      <Filter>Header Files\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="recode\go_main.h">
-      <Filter>Header Files\go_main</Filter>
-    </ClInclude>
-    <ClInclude Include="recode\all.h">
-      <Filter>Header Files\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="recode\worker_func.h">
-      <Filter>Header Files\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="recode\circle.h">
-      <Filter>Header Files\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="recode\bundle.h">
-      <Filter>Header Files\primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="utils.h">
+    <ClInclude Include="src\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="exporting.h">
-      <Filter>Header Files\cli</Filter>
-    </ClInclude>
-    <ClInclude Include="borst_object.h">
+    <ClInclude Include="src\borst_object.h">
       <Filter>Header Files\node</Filter>
+    </ClInclude>
+    <ClInclude Include="src\recode\go_main.h">
+      <Filter>Header Files\go_main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\exporting.h">
+      <Filter>Header Files\cli</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

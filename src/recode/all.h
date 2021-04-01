@@ -8,7 +8,6 @@
 #include "../utils.h"
 
 // [log.h]
-#include "optimize.h"
 #include "util.h"
 #include "core.h"
 

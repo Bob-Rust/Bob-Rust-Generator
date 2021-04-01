@@ -10,8 +10,11 @@ class Circle {
 	private:
 		Worker* worker = 0;
 
+
 	public:
 		int x, y, r;
+		
+		Circle() {}
 
 		Circle(Worker* worker) {
 			this->worker = worker;
