@@ -1,7 +1,7 @@
 // This will export some functions to Node.js
-//#define BUILD_NODE
 
 #ifdef BUILD_NODE
+#define BUILDING_NODE_EXTENSION
 #include <node.h>
 
 namespace bob_rust_generator {
@@ -10,7 +10,7 @@ namespace bob_rust_generator {
 	using v8::Local;
 	using v8::Object;
 	using v8::Number;
-	using v8::value;
+	using v8::Value;
 	
 	// TODO: Create a callback function to tell the js app that we have generated the shapes
 	// TODO: Create a way to send data between C++ and node.js
@@ -25,7 +25,11 @@ namespace bob_rust_generator {
 		NODE_SET_METHOD(exports, "???", Method);
 	}
 
-	NODE_MODULE(NODE_GYP_MODULE_NAME, Initialize);
+	NODE_MODULE(NODE_GYP_MODULE_NAME, Initialize)
+
+	NODE_MODULE_INIT(/* exports, module, context */) {
+		// ???
+	}
 }
 
 #endif

@@ -20,14 +20,14 @@ using std::stringstream;
 class Model {
 	private:
 		Worker* worker;
-		vector<Circle> shapes;
-		vector<Color> colors;
 		vector<float> scores;
 		Color background;
-		float scale;
 		int sw, sh;
 		
 	public:
+		vector<Circle> shapes;
+		vector<Color> colors;
+
 		Image* target;
 		Image* current;
 		Image* context;
@@ -37,24 +37,8 @@ class Model {
 			int w = target->width;
 			int h = target->height;
 
-			float aspect = w / ((float)h);
-			int sw = 0;
-			int sh = 0;
-			float scale = 0;
-
-			if(w >= h) {
-				sw = size;
-				sh = (int)(size / aspect);
-				scale = size / ((float)w);
-			} else {
-				sw = (int)(size * aspect);
-				sh = size;
-				scale = size / ((float)h);
-			}
-
-			this->sw = sw;
-			this->sh = sh;
-			this->scale = scale;
+			this->sw = w;
+			this->sh = h;
 			this->background = background;
 			this->target = target;
 

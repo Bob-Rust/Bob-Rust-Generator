@@ -3,6 +3,8 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
+// #define UTILS_H_EXPERIMENTAL
+
 #include "recode/bundle.h"
 
 // Alphas
@@ -28,7 +30,9 @@
 	};
 	#define ALPHA_INDEX(alpha) (alpha < 0 ? 9:(alpha > 255 ? 255:ALPHA_TO_IDX[alpha]))
 	// Get the closest alpha to a 1 byte values without doing any range checks
+#ifdef UTILS_H_EXPERIMENTAL
 	#define ALPHA_INDEX_NO_CHECK(alpha) ALPHA_TO_INDEX[alpha]
+#endif
 
 // Sizes
 	constexpr int NUM_SIZES = 6;
@@ -62,6 +66,7 @@
 		COLOR(49, 49, 49, COMMON_OPACITY),
 		COLOR(1, 2, 1, COMMON_OPACITY)
 	};
+#ifdef UTILS_H_EXPERIMENTAL
 	const int COLOR_TO_IDX[] = { // 64 * 4 bytes..
 		8, 0, 0, 1, 19, 0, 3, 5,
 		15, 0, 0, 4, 0, 0, 0, 0,
@@ -74,7 +79,9 @@
 	};
 	// Only use this is you know the colors match exactly.. Will only require a shift, and, array
 	// This is not a replacement for [closestColor]
-	#define COLOR_TO_IDX_EXACT_MATCH_ONLY(color) COLOR_TO_IDX[(color.rgba >> 7) & 63]
+	#define COLOR_TO_IDX_EXACT_MATCH_ONLY(color) COLOR_TO_IDX[(((int)color) >> 7) & 63]
+#endif
+	#define COLOR_INDEX(color) closestColorIndex(color)
 
 // Utils
 #define clampInt(a, b, c) (a < b ? b:(a > c ? c:a))
@@ -82,7 +89,6 @@
 #define diffInt(a, b) (a < b) ? (b - a):(a - b)
 
 #define COLOR_DISTANCE(a, b) (a.r - b.r) * (a.r - b.r) + (a.g - b.g) * (a.g - b.g) + (a.b - b.b) * (a.b - b.b)
-
 Color closestColor(Color& color) {
 	Color result = ARR_COLORS[0];
 	unsigned int dist = 0xffffff;

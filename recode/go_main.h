@@ -38,8 +38,7 @@ int run_borst_generator(Settings settings) {
 	printf("\n");
 	
 	auto begin = high_resolution_clock::now();
-
-	for(int i = 0; i <= settings.MaxShapes; i++) {
+	for(int i = 0; i <= Count; i++) {
 		auto start = high_resolution_clock::now();
 		int n = model->Step(Alpha, Repeat);
 		auto end = high_resolution_clock::now();
@@ -65,7 +64,6 @@ int run_borst_generator(Settings settings) {
 	return BORST_SUCCESSFUL;
 }
 #else
-
 int run_borst_generator(Settings settings) {
 	char* input = settings.ImagePath;
 
@@ -78,7 +76,7 @@ int run_borst_generator(Settings settings) {
 	const int Alpha = ARR_ALPHAS[settings.Alpha];
 	int Repeat = 1;
 
-	for(int i = 0; i <= settings.MaxShapes; i++) {
+	for(int i = 0; i <= Count; i++) {
 		int n = model->Step(Alpha, Repeat);
 
 		if((i % Callb) == 0) {

@@ -1,4 +1,5 @@
-// #include "exporting.h"
+#define BUILD_NODE
+#include "exporting.h"
 
 #include <iostream>
 #include "recode/all.h"
