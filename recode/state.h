@@ -16,13 +16,13 @@
 class State : public Annealable {
 	private:
 		// [Legacy]
-		bool mutateAlpha; // 1/4
+		bool mutateAlpha;
 
 	public:
-		Worker* worker; // 4
-		Circle shape; // 16
-		float score; // 4
-		int alpha; // 4
+		Worker* worker;
+		Circle shape;
+		float score;
+		int alpha;
 
 		State(Worker* worker, int alpha) : shape(worker) {
 			this->worker = worker;

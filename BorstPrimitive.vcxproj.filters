@@ -33,9 +33,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="borst_object.h">
-      <Filter>Header Files\node</Filter>
-    </ClCompile>
     <ClCompile Include="borst_object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -88,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="exporting.h">
       <Filter>Header Files\cli</Filter>
+    </ClInclude>
+    <ClInclude Include="borst_object.h">
+      <Filter>Header Files\node</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

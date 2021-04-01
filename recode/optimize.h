@@ -13,6 +13,7 @@ class Annealable {
 };
 
 // You need to call delete on objects returned from this method
+
 Annealable* HillClimb(Annealable* state, int maxAge) {
 	state = state->Copy();
 

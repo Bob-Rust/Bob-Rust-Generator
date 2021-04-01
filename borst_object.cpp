@@ -1,3 +1,5 @@
+#ifdef BUILD_NODE
+
 #include <node.h>
 #include "borst_object.h"
 
@@ -21,14 +23,7 @@ Local<Value> bob_rust_generator::create_borst_object(Isolate* isolate, Circle sh
 }
 */
 
-Local<Array> bob_rust_generator::create_borst_list(Isolate* isolate, Model* model) {
-	// TODO: This runs async so we could get a higher amount of shapes than what we think.
-	//       Make sure we provide the count as a parameter instead of checking the vector!
-	// TODO: A race condition could potentially have the size of shapes and colors be
-	//       different. This could maybe cause a color or shape to be read outside of allocated
-	//       memory. Check if this is something that we need to change!
-	const unsigned int count = model->shapes.size();
-
+Local<Array> bob_rust_generator::create_borst_list(Isolate* isolate, Model* model, int count) {
 	Local<Context> context = isolate->GetCurrentContext();
 	Local<Array> array = Array::New(isolate, count);
 
@@ -54,3 +49,4 @@ Local<Array> bob_rust_generator::create_borst_list(Isolate* isolate, Model* mode
 
 	return array;
 }
+#endif

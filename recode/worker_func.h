@@ -10,29 +10,6 @@
 /// <param name="count">The amount of shapes to check</param>
 /// <returns>The best state computed from 'count' shapes</returns>
 State* BestRandomState(Worker* worker, int alpha, int count) {
-	/*
-	float bestEnergy = 0;
-	State* bestState = 0;
-
-	for(int i = 0; i < count; i++) {
-		State* state = new State(worker, alpha);
-		float energy = state->Energy();
-
-		if(i == 0 || energy < bestEnergy) {
-			bestEnergy = energy;
-			delete bestState;
-			bestState = state;
-		}
-
-		if(bestState != state) {
-			// Free memory
-			delete state;
-		}
-	}
-
-	return bestState;
-	*/
-
 	vector<State*> ch(count);
 	concurrency::parallel_for(size_t(0), size_t(count), [&](int i) {
 		State* state = new State(worker, alpha);

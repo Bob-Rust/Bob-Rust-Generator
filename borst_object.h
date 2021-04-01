@@ -13,8 +13,7 @@ namespace bob_rust_generator {
 		v8::Persistent<v8::Function> callback;
 	};
 
-	// v8::Local<v8::Value> create_borst_object(v8::Isolate* isolate, Circle shape, Color color);
-	v8::Local<v8::Array> create_borst_list(v8::Isolate* isolate, Model* model);
+	v8::Local<v8::Array> create_borst_list(v8::Isolate* isolate, Model* model, int count);
 }
 
 #endif

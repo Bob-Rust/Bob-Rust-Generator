@@ -97,11 +97,7 @@ namespace bob_rust_generator {
 		Color bg{ 0, 0, 0, 0xff };
 		{
 			Local<v8::Array> opt_bg = m_opt_bg->ToObject(context).ToLocalChecked();
-			int len = opt_bg->Length();
-			if(len != 3) {
-				EXP_THROW_EXCEPTION(isolate, "The property 'background' was not a color [ r, g, b, ]");
-				return;
-			}
+			IS_OR_THROW_EXCEPTION(isolate, opt_bg->Length() != 3, "The property 'background' was not a color [ r, g, b, ]")
 
 			Local<Value> col_r = opt_bg->Get(context, 0).ToLocalChecked();
 			Local<Value> col_g = opt_bg->Get(context, 1).ToLocalChecked();
@@ -142,9 +138,6 @@ namespace bob_rust_generator {
 	}
 
 	NODE_MODULE(NODE_GYP_MODULE_NAME, Initialize)
-
-//	NODE_MODULE_INIT(/* exports, module, context */) {
-//	}
 }
 
 #undef EXP_THROW_EXCEPTION

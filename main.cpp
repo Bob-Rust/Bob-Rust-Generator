@@ -1,9 +1,9 @@
-#define BUILD_NODE
-#include "exporting.h"
+//#define BUILD_NODE
 
 #include <iostream>
 #include "recode/all.h"
 #include "recode/go_main.h"
+// #include "exporting.h"
 
 using namespace std;
 
@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
 	set.ImagePath = (char*)"Debug/examples/wolf_512.png";
 	set.CallbackShapes = 100;
 	set.MaxShapes = 8000;
-	set.Background = Color{0, 0, 0, 0};
+	set.Background = Color{0, 0, 0, 0xff};
 	set.Alpha = 2;
 	
 	return run_borst_generator(set);
