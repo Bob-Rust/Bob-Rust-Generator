@@ -3,9 +3,8 @@
 #ifndef __BUNDLE_H__
 #define __BUNDLE_H__
 
-struct Color {
-	unsigned char r, g, b, a;
-};
+struct Scanline { int y, x1, x2; };
+struct Color { unsigned char r, g, b, a; };
 
 struct Settings {
 	// A path to the image that should be loaded
@@ -23,10 +22,6 @@ struct Settings {
 
 	// The default alpha value.
 	int Alpha = 2;
-};
-
-struct Scanline {
-	int y, x1, x2;
 };
 
 class Image {

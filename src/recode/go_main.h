@@ -29,8 +29,7 @@ int run_borst_generator(Settings settings) {
 	const int Count = settings.MaxShapes;
 	const int Callb = settings.CallbackShapes;
 	const int Alpha = ARR_ALPHAS[settings.Alpha];
-	int Repeat = 1;
-
+	
 	printf("Settings:\n");
 	printf("  MaxShapes  = %d\n", Count);
 	printf("  Callback   = %d\n", Callb);
@@ -40,18 +39,19 @@ int run_borst_generator(Settings settings) {
 	auto begin = high_resolution_clock::now();
 	for(int i = 0; i <= Count; i++) {
 		auto start = high_resolution_clock::now();
-		int n = model->Step(Alpha, Repeat);
-		auto end = high_resolution_clock::now();
-
-		if((i % Callb) == 0) {
-			auto elapsed = duration_cast<milliseconds>(end - start); 
-			float nps = i / (duration_cast<seconds>(end - begin).count() + 0.0f); 
-			if(!isfinite(nps)) nps = 0;
+		int n = model->Step(Alpha);
+		
+		if((i % Callb) == 0 || (i == Count)) {
+			auto end = high_resolution_clock::now();
+			auto elapsed = duration_cast<milliseconds>(end - begin);
+			float time = elapsed.count() / 1000.0f;
+			float sps = i / time;
+			if(!isfinite(sps)) sps = 0;
 
 			char stream_path[256];
 			sprintf_s(stream_path, "Debug/outfolder/image_%d.png", i);
-
-			printf("%5d: t=%.3f ms, score=%.6f, n=%d, n/s=%.2f : '%s'\n", i, elapsed.count() / 1000.0, model->score, n, nps, stream_path);
+			
+			printf("%5d: t=%.3f s, score=%.6f, n=%d, s/s=%.2f : '%s'\n", i, time, model->score, n, sps, stream_path);
 			SavePNG(stream_path, &model->current[0]);
 		}
 	}
@@ -72,10 +72,9 @@ int run_borst_generator(Settings settings) {
 	const int Count = settings.MaxShapes;
 	const int Callb = settings.CallbackShapes;
 	const int Alpha = ARR_ALPHAS[settings.Alpha];
-	int Repeat = 1;
-
+	
 	for(int i = 0; i <= Count; i++) {
-		int n = model->Step(Alpha, Repeat);
+		int n = model->Step(Alpha);
 
 		if((i % Callb) == 0) {
 			// TODO: Call the node javascript callback!

@@ -52,7 +52,6 @@ State BestHillClimbState(Worker* worker, int alpha, int max_random_states, int a
 		if(i == 0 || energy < bestEnergy) {
 			bestEnergy = energy;
 			bestState = state;
-			// printf("[BestHillClimbState]: %dx before: %.6f -> %dx hill climb: %.6f\n", n, before, age, energy);
 		}
 	}
 

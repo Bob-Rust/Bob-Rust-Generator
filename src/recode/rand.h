@@ -1,20 +1,27 @@
-#include <random>
-#include <time.h>
-
 #ifndef __RAND_H__
 #define __RAND_H__
 
+#include <random>
+using std::default_random_engine;
+using std::normal_distribution;
+
+#ifdef _SEED_WITH_TIME
+#include <time.h>
+#endif
+
 class Rand {
 	private:
-		std::default_random_engine generator;
-		std::normal_distribution<float> distribution;
+		default_random_engine generator;
+		normal_distribution<float> distribution;
 
 	public:
-		Rand() {
-			// TODO: To make sure that we get the same results to debug easier
-			generator = std::default_random_engine(0);//(unsigned int)time(0));
-			distribution = std::normal_distribution<float>(0, 1);
-		}
+		Rand() : generator(
+#ifdef _SEED_WITH_TIME
+			time(0)
+#else
+			0
+#endif
+		), distribution(0, 1) {}
 
 		float NormFloat64() {
 			return distribution(generator);

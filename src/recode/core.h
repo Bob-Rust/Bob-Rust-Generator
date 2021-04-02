@@ -9,24 +9,22 @@ using std::vector;
 
 #include "../utils.h"
 #include "bundle.h"
+#include "circle_cache.h";
 
 typedef long long int64;
 typedef unsigned long long uint64;
 
-// This function calculates the best next color with a alpha values
-// This alpha check is done using a reverse alpha sum
 Color computeColor(Image* target, Image* current, vector<Scanline>& lines, int alpha) {
-	// TODO: Calculate the total maximum value that rsum, gsum, bsum could hold and maybe
-	//       reduce the size from int64 to int
-	int64 rsum = 0;
-	int64 gsum = 0;
-	int64 bsum = 0;
+	int64 rsum_1 = 0;
+	int64 gsum_1 = 0;
+	int64 bsum_1 = 0;
+
+	int64 rsum_2 = 0;
+	int64 gsum_2 = 0;
+	int64 bsum_2 = 0;
+
 	int count = 0;
 	int w = target->width;
-
-	// This will throw a division by zero exception if alpha is zero
-	int pd = (255 << 8) / alpha;
-	int pa = (255 - alpha);
 
 	Color tt, cc;
 	for(unsigned int i = 0; i < lines.size(); i++) {
@@ -38,16 +36,26 @@ Color computeColor(Image* target, Image* current, vector<Scanline>& lines, int a
 		for(int x = line.x1; x <= line.x2; x++) {
 			tt = tta[x];
 			cc = cca[x];
-			rsum += int64(((int)tt.r - (int)cc.r) * pd + (cc.r << 8));
-			gsum += int64(((int)tt.g - (int)cc.g) * pd + (cc.g << 8));
-			bsum += int64(((int)tt.b - (int)cc.b) * pd + (cc.b << 8));
+			rsum_1 += tt.r;
+			gsum_1 += tt.g;
+			bsum_1 += tt.b;
+			rsum_2 += cc.r;
+			gsum_2 += cc.g;
+			bsum_2 += cc.b;
 		}
 
 		count += (line.x2 - line.x1 + 1);
 	}
 
 	// TODO: Unnecessary check
-	if(!count) return Color{0};
+	if(!count) return Color{0, 0, 0, 0};
+	
+	// This will throw a division by zero exception if alpha is zero
+	int pd = (255 << 8) / alpha;
+	int pa = (255 - alpha);
+	int64 rsum = (rsum_1 - rsum_2) * pd + (rsum_2 << 8);
+	int64 gsum = (gsum_1 - gsum_2) * pd + (gsum_2 << 8);
+	int64 bsum = (bsum_1 - bsum_2) * pd + (bsum_2 << 8);
 
 	int r = (int)(rsum / count) >> 8;
 	int g = (int)(gsum / count) >> 8;
@@ -62,9 +70,9 @@ Color computeColor(Image* target, Image* current, vector<Scanline>& lines, int a
 }
 
 void copyLines_replaceRegion(Image* dst, Image* src, vector<Scanline>& lines) {
-	int w = dst->width;
-
-	for(unsigned int i = 0; i < lines.size(); i++) {
+	unsigned int w = dst->width;
+	const unsigned int len = lines.size();
+	for(unsigned int i = 0; i < len; i++) {
 		Scanline line = lines[i];
 		int idx = line.x1 + line.y * w;
 		
@@ -73,13 +81,13 @@ void copyLines_replaceRegion(Image* dst, Image* src, vector<Scanline>& lines) {
 }
 
 void drawLines(Image* im, Color& c, vector<Scanline>& lines) {
-	int cr = (c.r * c.a);
-	int cg = (c.g * c.a);
-	int cb = (c.b * c.a);
-	int pa = (255 - c.a);
-	int w = im->width;
-
-	for(unsigned int i = 0; i < lines.size(); i++) {
+	unsigned int cr = (c.r * c.a);
+	unsigned int cg = (c.g * c.a);
+	unsigned int cb = (c.b * c.a);
+	unsigned int pa = (255 - c.a);
+	unsigned int w = im->width;
+	const unsigned int len = lines.size();
+	for(unsigned int i = 0; i < len; i++) {
 		Scanline line = lines[i];
 		Color* ima = im->Pix + line.y * w;
 
