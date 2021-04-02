@@ -5,6 +5,7 @@
 #include "recode/go_main.h"
 #include "exporting.h"
 
+#ifndef BUILD_NODE
 using namespace std;
 
 int main(int argc, char** argv) {
@@ -17,3 +18,4 @@ int main(int argc, char** argv) {
 	
 	return run_borst_generator(set);
 }
+#endif

@@ -2,7 +2,7 @@
   "targets": [
     {
       "target_name": "bob-rust-generator",
-      "sources": [ "main.cpp" ]
+      "sources": [ "src/main.cpp" ]
     }
   ]
 }

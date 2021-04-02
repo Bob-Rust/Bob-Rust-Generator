@@ -102,7 +102,6 @@ class Model {
 
 		int Step(int alpha, int repeat) {
 			State state = runWorkers(alpha, 1000, 100, 16);
-			Add(state.shape, state.alpha);
 			
 			if(repeat > 0) {
 				State last = state;
@@ -116,12 +115,16 @@ class Model {
 					float b = next.Energy();
 					
 					if(a != b) {
-						Add(next.shape, next.alpha);
+						state.shape = next.shape;
+						state.alpha = next.alpha;
+						// Add(next.shape, next.alpha);
 					}
 
 					last = next;
 				}
 			}
+
+			Add(state.shape, state.alpha);
 
 			return this->worker->counter;
 		}

@@ -13,7 +13,7 @@ using std::ofstream;
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../stb/stb_image_write.h"
 
-Image* LoadImage(char* path) {
+Image* BorstLoadImage(char* path) {
 	int w, h, n;
 	unsigned char *data = stbi_load(path, &w, &h, &n, 0);
 	if(!data) {

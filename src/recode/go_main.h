@@ -19,7 +19,7 @@ int run_borst_generator(Settings settings) {
 
 	printf("Reading from the file '%s'\n", input);
 
-	Image* image = LoadImage(input);
+	Image* image = BorstLoadImage(input);
 	if(!image) {
 		printf("Failed to read image '%s'\n", input);
 		return BORST_INVALID_IMAGE;
@@ -51,7 +51,7 @@ int run_borst_generator(Settings settings) {
 			char stream_path[256];
 			sprintf_s(stream_path, "Debug/outfolder/image_%d.png", i);
 
-			printf("%5d: t=%.3f ms, score=%.6f, n=%d ms, n/s=%.2f : '%s'\n", i, elapsed.count() / 1000.0, model->score, n, nps, stream_path);
+			printf("%5d: t=%.3f ms, score=%.6f, n=%d, n/s=%.2f : '%s'\n", i, elapsed.count() / 1000.0, model->score, n, nps, stream_path);
 			SavePNG(stream_path, &model->current[0]);
 		}
 	}
@@ -65,7 +65,7 @@ int run_borst_generator(Settings settings) {
 int run_borst_generator(Settings settings) {
 	char* input = settings.ImagePath;
 
-	Image* image = LoadImage(input);
+	Image* image = BorstLoadImage(input);
 	if(!image) return BORST_INVALID_IMAGE;
 
 	Model* model = new Model(image, settings.Background);
