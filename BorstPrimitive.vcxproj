@@ -179,6 +179,9 @@
     <ClInclude Include="src\recode\util.h" />
     <ClInclude Include="src\recode\worker.h" />
     <ClInclude Include="src\recode\worker_func.h" />
+    <ClInclude Include="src\sort\blob_sort.h" />
+    <ClInclude Include="src\sort\quad_tree.h" />
+    <ClInclude Include="src\sort\sort_util.h" />
     <ClInclude Include="src\stb\stb_image.h" />
     <ClInclude Include="src\stb\stb_image_write.h" />
     <ClInclude Include="src\utils.h" />

@@ -4,6 +4,7 @@
 // Used to build a node module
 //#define BUILD_NODE
 
+#include "utils.h"
 #include "recode/all.h"
 #include "recode/go_main.h"
 #include "exporting.h"

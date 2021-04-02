@@ -1,5 +1,6 @@
 #pragma once
 
+#ifndef BUILD_NODE
 constexpr int BORST_INVALID_IMAGE	= 0x1000;
 constexpr int BORST_ERROR			= 0x1001;
 constexpr int BORST_SUCCESSFUL		= 0;
@@ -7,8 +8,7 @@ constexpr int BORST_SUCCESSFUL		= 0;
 #include "util.h"
 #include "bundle.h"
 #include "model.h"
-
-#ifndef BUILD_NODE
+#include "../sort/blob_sort.h"
 
 #include <chrono>
 using std::chrono::high_resolution_clock;
@@ -48,6 +48,11 @@ int run_borst_generator(Settings settings) {
 			float sps = i / time;
 			if(!isfinite(sps)) sps = 0;
 
+			if(i == Count) {
+				// Sort the shapes
+				bobrust::sort_blob_list(model);
+			}
+
 			char stream_path[256];
 			sprintf_s(stream_path, "Debug/outfolder/image_%d.png", i);
 			
@@ -55,33 +60,6 @@ int run_borst_generator(Settings settings) {
 			SavePNG(stream_path, &model->current[0]);
 		}
 	}
-
-	delete model;
-	delete image;
-
-	return BORST_SUCCESSFUL;
-}
-#else
-int run_borst_generator(Settings settings) {
-	char* input = settings.ImagePath;
-
-	Image* image = BorstLoadImage(input);
-	if(!image) return BORST_INVALID_IMAGE;
-
-	Model* model = new Model(image, settings.Background);
-	const int Count = settings.MaxShapes;
-	const int Callb = settings.CallbackShapes;
-	const int Alpha = ARR_ALPHAS[settings.Alpha];
-	
-	for(int i = 0; i <= Count; i++) {
-		int n = model->Step(Alpha);
-
-		if((i % Callb) == 0) {
-			// TODO: Call the node javascript callback!
-		}
-	}
-
-	// TODO: Call the node javascript callback!
 
 	delete model;
 	delete image;
