@@ -1,18 +1,20 @@
+// Used inside rand.h to seed the random generator with the current time
+//#define _SEED_WITH_TIME
+
+// Used to build a node module
 #define BUILD_NODE
 
-#include <iostream>
+#include "utils.h"
 #include "recode/all.h"
 #include "recode/go_main.h"
 #include "exporting.h"
 
 #ifndef BUILD_NODE
-using namespace std;
-
 int main(int argc, char** argv) {
 	Settings set;
 	set.ImagePath = (char*)"Debug/examples/wolf_512.png";
 	set.CallbackShapes = 100;
-	set.MaxShapes = 8000;
+	set.MaxShapes = 4000;
 	set.Background = Color{0, 0, 0, 0xff};
 	set.Alpha = 2;
 	

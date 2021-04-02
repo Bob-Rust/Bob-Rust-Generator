@@ -1,12 +1,11 @@
-// This will export some functions to Node.js
 #ifdef BUILD_NODE
 #define BUILDING_NODE_EXTENSION
 #include <node.h>
 #include <uv.h>
 #include "borst_object.h"
 #include "borst_object.cpp"
-
 #include "recode/bundle.h"
+#include "sort/blob_sort.h"
 
 /*
 var borst_generator = require('./build/Release/borst_generator');
@@ -125,10 +124,9 @@ namespace bob_rust_generator {
 			const int Count = settings.MaxShapes;
 			const int Callb = settings.CallbackShapes;
 			const int Alpha = ARR_ALPHAS[settings.Alpha];
-			const int Repeat = 1;
-
+			
 			for(int i = 0; i <= Count; i++) {
-				int n = model->Step(Alpha, Repeat);
+				int n = model->Step(Alpha);
 
 				if((i % Callb) == 0) {
 					// printf("%5d: score=%.6f, n=%d\n", i, model->score, n);
@@ -148,8 +146,8 @@ namespace bob_rust_generator {
 		BobRustData* data = static_cast<BobRustData*>(req->data);
 		Settings settings = data->settings;
 
+		bobrust::sort_blob_list(data->model);
 		worker_send_data(data, data->done_callback);
-		// printf("[worker_generate_after] Cleanup\n");
 		
 		// Settings is not used yet so instead of introducing a memory leak we free it
 		free(settings.ImagePath);

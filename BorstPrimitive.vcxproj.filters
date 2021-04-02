@@ -22,14 +22,11 @@
     <Filter Include="Header Files\stb">
       <UniqueIdentifier>{b12b612a-5d1f-4bca-87d4-61823c6da684}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\cli">
-      <UniqueIdentifier>{ad557839-c6a9-43e0-8bae-562b38619354}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\node">
       <UniqueIdentifier>{7365582d-2cd3-4eef-b150-ac3044b5640b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\hints">
-      <UniqueIdentifier>{423b6d5a-8abf-4cc8-aaf2-41f3c4d3af26}</UniqueIdentifier>
+    <Filter Include="Header Files\sort">
+      <UniqueIdentifier>{ca06ecc4-a3e6-4b5f-9758-6ee96ae8149d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -86,13 +83,20 @@
     <ClInclude Include="src\recode\go_main.h">
       <Filter>Header Files\go_main</Filter>
     </ClInclude>
-    <ClInclude Include="src\exporting.h">
-      <Filter>Header Files\cli</Filter>
+    <ClInclude Include="src\recode\circle_cache.h">
+      <Filter>Header Files\primitive</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="test.hint">
-      <Filter>Header Files\hints</Filter>
-    </None>
+    <ClInclude Include="src\exporting.h">
+      <Filter>Header Files\node</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sort\blob_sort.h">
+      <Filter>Header Files\sort</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sort\quad_tree.h">
+      <Filter>Header Files\sort</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sort\sort_util.h">
+      <Filter>Header Files\sort</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

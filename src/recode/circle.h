@@ -10,7 +10,6 @@ class Circle {
 	private:
 		Worker* worker = 0;
 
-
 	public:
 		int x, y, r;
 		
@@ -32,30 +31,22 @@ class Circle {
 			this->r = r;
 		}
 
-		char* BORST(char* attrs) {
-			std::stringstream stream;
-			stream << x << "," << y << "," << SIZE_INDEX(r) << attrs;
-
-			std::string str(stream.str());
-			return (char*)str.c_str();
-		}
-
 		void Mutate() {
-			int w = worker->w;
-			int h = worker->h;
+			int w = worker->w - 1;
+			int h = worker->h - 1;
 			Rand* rnd = worker->rnd;
 
 			switch(rnd->Intn(3)) {
 				case 0: {
 					int a = x + (int)(rnd->NormFloat64() * 16);
 					int b = y + (int)(rnd->NormFloat64() * 16);
-					x = clampInt(a, 0, w - 1);
-					y = clampInt(b, 0, h - 1);
+					x = clampInt(a, 0, w);
+					y = clampInt(b, 0, h);
 				}
 				case 1:
 				case 2: {
 					int c = closestSize(r + (int)(rnd->NormFloat64() * 16));
-					r = clampInt(c, 1, w-1);
+					r = clampInt(c, 1, w);
 				}
 			}
 		}
@@ -64,31 +55,27 @@ class Circle {
 			int w = worker->w;
 			int h = worker->h;
 			
-			vector<Scanline> list = worker->lines;
-			for(int dy = 0; dy < r; dy++) {
-				int y1 = y - dy;
-				int y2 = y + dy;
+			int cache_index = SIZE_INDEX(r);
+			const Scanline* LINES = CIRCLE_CACHE[cache_index];
+			const int LENGTH = CIRCLE_CACHE_LENGTH[cache_index];
 
-				// TODO: Check if this is needed
-				if((y1 < 0 || y1 >= h) && (y2 < 0 || y2 >= h)) {
-					continue;
-				}
+			int i = r - 1;
+			i = (y < i) * (i - y);
 
-				int s = (int)(sqrt(r * r - dy * dy));
-				int x1 = x - s;
-				int x2 = x + s;
-				if(x1 < 0) x1 = 0;
-				if(x2 >= w) x2 = w - 1;
+			vector<Scanline> list;
+			list.reserve((size_t)LENGTH - i);
 
-				if(y1 >= 0 && y1 < h) {
-					Scanline line{y1, x1, x2};
-					list.push_back(line);
-				}
-
-				if(y2 >= 0 && y2 < h && dy > 0) {
-					Scanline line{y2, x1, x2};
-					list.push_back(line);
-				}
+			Scanline line;
+			int yy, x1, x2;
+			for(; i < LENGTH; i++) {
+				line = LINES[i];
+				yy = line.y + y;
+				if(yy >= h) return list;
+				x1 = line.x1 + x;
+				x2 = line.x2 + x;
+				x1 = (x1 < 0) ? 0:x1;
+				x2 = (x2 >=w) ? (w - 1):x2;
+				list.push_back(Scanline{yy, x1, x2});
 			}
 
 			return list;

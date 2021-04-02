@@ -39,7 +39,6 @@ class State {
 		float Energy() {
 			if(score < 0) {
 				vector<Scanline> list = shape.Rasterize();
-
 				score = worker->Energy(list, alpha);
 			}
 
@@ -65,16 +64,13 @@ class State {
 			score = oldState.score;
 		}
 
-		// Create a copy that wont generate a new pointer
 		State Copy() {
 			return State(worker, shape, alpha, mutateAlpha, score);
 		}
 };
 
-State HillClimb(State inp, int maxAge) {
-	State state = inp;
-
-	State bestState = inp;
+State HillClimb(State state, int maxAge) {
+	State bestState = state;
 	float minimumEnergy = state.Energy();
 
 	// This function will minimize the energy of the input state
@@ -84,11 +80,8 @@ State HillClimb(State inp, int maxAge) {
 		float energy = state.Energy();
 
 		if(energy >= minimumEnergy) {
-			// Changes the old state
-			
 			state.UndoMove(undo);
 		} else {
-			//printf("step: %d, energy: %.6f\n", step, energy);
 			minimumEnergy = energy;
 			bestState = state;
 			age = -1;
