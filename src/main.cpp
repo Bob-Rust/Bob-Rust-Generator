@@ -2,7 +2,7 @@
 //#define _SEED_WITH_TIME
 
 // Used to build a node module
-//#define BUILD_NODE
+#define BUILD_NODE
 
 #include "utils.h"
 #include "recode/all.h"
