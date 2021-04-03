@@ -1,34 +1,24 @@
 #ifndef __STATE_H__
 #define __STATE_H__
 
-#include "../utils.h"
 #include "circle.h"
-#include "rand.h"
 
-// 32 bytes per state, (+ vtable)
 class State {
 	private:
-		// [Legacy]
-		bool mutateAlpha;
+		Worker* worker;
 
 	public:
-		Worker* worker;
 		Circle shape;
 		float score;
-		int alpha;
 		
 		State() {}
-		State(Worker* worker, int alpha) : shape(worker) {
+		State(Worker* worker) : shape(worker) {
 			this->worker = worker;
-			this->alpha = (alpha == 0 ? 128:alpha);
-			this->mutateAlpha = (alpha == 0);
 			this->score = -1;
 		}
 
-		State(Worker* worker, Circle& sh, int alpha, bool mutateAlpha, float score) : shape(sh) {
+		State(Worker* worker, Circle& sh, float score) : shape(sh) {
 			this->worker = worker;
-			this->alpha = alpha;
-			this->mutateAlpha = mutateAlpha;
 			this->score = score;
 		}
 
@@ -39,7 +29,7 @@ class State {
 		float Energy() {
 			if(score < 0) {
 				vector<Scanline> list = shape.Rasterize();
-				score = worker->Energy(list, alpha);
+				score = worker->Energy(list);
 			}
 
 			return score;
@@ -49,48 +39,18 @@ class State {
 			State oldState = Copy();
 			shape.Mutate();
 
-			if(mutateAlpha) {
-				int val = alpha + worker->rnd->Intn(21) - 10;
-				alpha = clampInt(val, 1, 255);
-			}
-
 			score = -1;
 			return oldState;
 		}
 
 		void UndoMove(State oldState) {
 			shape = oldState.shape;
-			alpha = oldState.alpha;
 			score = oldState.score;
 		}
 
 		State Copy() {
-			return State(worker, shape, alpha, mutateAlpha, score);
+			return State(worker, shape, score);
 		}
 };
-
-State HillClimb(State state, int maxAge) {
-	State bestState = state;
-	float minimumEnergy = state.Energy();
-
-	// This function will minimize the energy of the input state
-	int step = 0;
-	for(int age = 0; age < maxAge; age++) {
-		State undo = state.DoMove();
-		float energy = state.Energy();
-
-		if(energy >= minimumEnergy) {
-			state.UndoMove(undo);
-		} else {
-			minimumEnergy = energy;
-			bestState = state;
-			age = -1;
-		}
-		
-		step++;
-	}
-
-	return bestState;
-}
 
 #endif

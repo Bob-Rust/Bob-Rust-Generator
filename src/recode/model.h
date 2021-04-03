@@ -1,40 +1,39 @@
 #pragma once
 
-#ifndef __MODEL_H__
-#define __MODEL_H__
-
-#include <sstream>
-#include <vector>
-#include <stdio.h>
-#include <ppl.h>
-
-using std::vector;
-using std::stringstream;
-
 #include "bundle.h"
 #include "circle.h"
 #include "worker.h"
 #include "core.h"
 #include "util.h"
-#include "../utils.h"
+
+#ifndef __MODEL_H__
+#define __MODEL_H__
+
+#include <vector>
+using std::vector;
+
 
 class Model {
 	private:
 		Worker* worker;
-		vector<float> scores;
+		Image* target;
+		Image* context;
+		int alpha;
 		
 	public:
 		vector<Circle> shapes;
 		vector<Color> colors;
-		Image* target;
 		Image* current;
-		Image* context;
 		float score;
+		int width;
+		int height;
 
-		Model(Image* target, Color background) {
+		Model(Image* target, Color background, int alpha) {
 			int w = target->width;
 			int h = target->height;
 			this->target = target;
+			this->width = w;
+			this->height = h;
 
 			this->current = new Image(w, h);
 			for(int i = 0; i < w * h; i++) {
@@ -43,13 +42,12 @@ class Model {
 			
 			this->score = differenceFull(target, current);
 			this->context = new Image(w, h);
-
-			worker = new Worker(target);
+			this->worker = new Worker(target, alpha);
+			this->alpha = alpha;
 		}
 
 		~Model() {
 			colors.clear();
-			scores.clear();
 			shapes.clear();
 			
 			delete worker;
@@ -57,7 +55,7 @@ class Model {
 			delete current;
 		}
 
-		void Add(Circle shape, int alpha) {
+		void Add(Circle shape) {
 			Image* before = copyRGBA(current);
 
 			vector<Scanline> lines = shape.Rasterize();
@@ -70,16 +68,16 @@ class Model {
 			this->score = sc;
 			shapes.push_back(shape);
 			colors.push_back(color);
-			scores.push_back(sc);
 
 			drawLines(context, color, lines);
 		}
 
-		int Step(int alpha) {
+		int Step() {
 			worker->Init(current, score);
-			State state = BestHillClimbState(worker, alpha, 1000, 100, 1);
-			Add(state.shape, state.alpha);
-			return this->worker->counter;
+			State state = BestHillClimbState(worker, 1000, 100, 1);
+			Add(state.shape);
+
+			return worker->counter;
 		}
 };
 

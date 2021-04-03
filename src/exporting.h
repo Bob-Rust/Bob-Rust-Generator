@@ -10,16 +10,23 @@
 /*
 var borst_generator = require('./build/Release/borst_generator');
 
-function borst_update(list) {}
-function borst_done(list) {}
+var COLORS = borst_generator.colors();
+var ALPHAS = borst_generator.alphas();
+var SIZES = borst_generator.sizes();
 
 var gen = borst_generator.generate({
 	path: '<image-path>',
 	count: 4000,
+	interval: 100,
 	alpha: 2,
-	background: [ <r>, <g>, <b> ],
-	intervall: 100
-}, borst_update, borst_done);
+	width: 0,
+	height: 0,
+	background: [ <r>, <g>, <b> ]
+}, (map) => {
+	console.log('Batch');
+}, (map) => {
+	console.log('Done');
+});
 
 // Stop generating shapes. (Blocking)
 gen.stop();
@@ -65,12 +72,13 @@ namespace bob_rust_generator {
 	typedef Persistent<Function, v8::CopyablePersistentTraits<Function>> PersistentFunc;
 
 	struct BobRustData {
+		bool working;
 		uv_work_t request;
 		PersistentFunc work_callback;
 		PersistentFunc done_callback;
 		Model* model;
 		Settings settings;
-	};
+	} global_data;
 
 	void worker_send_data(BobRustData* data, PersistentFunc func) {
 		Isolate* isolate = Isolate::GetCurrent();
@@ -83,7 +91,7 @@ namespace bob_rust_generator {
 
 		// TODO: This could contain a outdated count.. Get the correct count from a parameter!
 		int count = data->model->shapes.size();
-		args[0] = bob_rust_generator::create_borst_list(isolate, data->model, count);
+		args[0] = bob_rust_generator::create_borst_object(isolate, data->model, count);
 		cb->Call(ctx, v8::Null(isolate), 1, args);
 	}
 	
@@ -100,46 +108,32 @@ namespace bob_rust_generator {
 	void worker_generate(uv_work_t* req) {
 		BobRustData* data = static_cast<BobRustData*>(req->data);
 		Settings settings = data->settings;
-		
-		/*
-		Color bg = settings.Background;
-		printf("Settings:\n");
-		printf("  ImagePath  = %s\n", settings.ImagePath);
-		printf("  MaxShapes  = %d\n", settings.MaxShapes);
-		printf("  Callback   = %d\n", settings.CallbackShapes);
-		printf("  Alpha      = %d\n", settings.Alpha);
-		printf("  Background = (%d, %d, %d, %d)\n", bg.r, bg.g, bg.b, bg.a);
-		printf("\n");
-		*/
 
-		{
-			Image* image = BorstLoadImage(settings.ImagePath);
-			if(!image) {
-				delete image;
-				return;
-			}
-
-			Model* model = new Model(image, settings.Background);
-			data->model = model;
-			const int Count = settings.MaxShapes;
-			const int Callb = settings.CallbackShapes;
-			const int Alpha = ARR_ALPHAS[settings.Alpha];
-			
-			for(int i = 0; i <= Count; i++) {
-				int n = model->Step(Alpha);
-
-				if((i % Callb) == 0) {
-					// printf("%5d: score=%.6f, n=%d\n", i, model->score, n);
-					
-					uv_async_t* job = (uv_async_t*)malloc(sizeof(uv_async_t));
-					job->data = data;
-					uv_async_init(uv_default_loop(), job, worker_send_async);
-					uv_async_send(job);
-				}
-			}
-			
+		Image* image = BorstLoadImage(settings.ImagePath, settings.Width, settings.Height);
+		if(!image) {
 			delete image;
+			return;
 		}
+			
+		const int Count = settings.MaxShapes;
+		const int Callb = settings.CallbackShapes;
+		const int Alpha = ARR_ALPHAS[settings.Alpha];
+
+		Model* model = new Model(image, settings.Background, Alpha);
+		data->model = model;
+			
+		for(int i = 0; i <= Count; i++) {
+			int n = model->Step();
+
+			if((i % Callb) == 0) {
+				uv_async_t* job = (uv_async_t*)malloc(sizeof(uv_async_t));
+				job->data = data;
+				uv_async_init(uv_default_loop(), job, worker_send_async);
+				uv_async_send(job);
+			}
+		}
+			
+		delete image;
 	}
 
 	void worker_generate_after(uv_work_t* req, int status) {
@@ -179,8 +173,7 @@ namespace bob_rust_generator {
 		}
 
 		if(!args[2]->IsFunction()) {
-			isolate->ThrowException(Exception::TypeError(
-				String::NewFromUtf8(isolate, "Expected a function args[2]").ToLocalChecked()));
+			isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Expected a function args[2]").ToLocalChecked()));
 			return;
 		}
 		
@@ -189,14 +182,18 @@ namespace bob_rust_generator {
 
 		GET_OR_THROW(isolate, context, options, "path", m_opt_path);
 		GET_OR_THROW(isolate, context, options, "count", m_opt_count);
-		GET_OR_THROW(isolate, context, options, "intervall", m_opt_intervall);
+		GET_OR_THROW(isolate, context, options, "interval", m_opt_interval);
 		GET_OR_THROW(isolate, context, options, "alpha", m_opt_alpha);
 		GET_OR_THROW(isolate, context, options, "background", m_opt_bg);
+		GET_OR_THROW(isolate, context, options, "width", m_opt_width);
+		GET_OR_THROW(isolate, context, options, "height", m_opt_height);
 
 		IS_OR_THROW_EXCEPTION(isolate, m_opt_path->IsString(), "The property 'path' was not a string")
 		IS_OR_THROW_EXCEPTION(isolate, m_opt_count->IsInt32(), "The property 'count' was not an integer")
-		IS_OR_THROW_EXCEPTION(isolate, m_opt_intervall->IsInt32(), "The property 'intervall' was not an integer")
+		IS_OR_THROW_EXCEPTION(isolate, m_opt_interval->IsInt32(), "The property 'interval' was not an integer")
 		IS_OR_THROW_EXCEPTION(isolate, m_opt_alpha->IsInt32(), "The property 'alpha' was not an integer")
+		IS_OR_THROW_EXCEPTION(isolate, m_opt_width->IsInt32(), "The property 'width' was not an integer")
+		IS_OR_THROW_EXCEPTION(isolate, m_opt_height->IsInt32(), "The property 'height' was not an integer")
 		IS_OR_THROW_EXCEPTION(isolate, m_opt_bg->IsArray(), "The property 'background' was not an array")
 		
 		Color bg{ 0, 0, 0, 0xff };
@@ -217,13 +214,14 @@ namespace bob_rust_generator {
 			bg.b = (unsigned char)col_b->IntegerValue(context).FromMaybe(0);
 		}
 		
-		// This needs to be deleted with free()
 		Settings settings;
 		String::Utf8Value str(isolate, m_opt_path->ToString(context).ToLocalChecked());
 		settings.ImagePath = _strdup(*str);
-		settings.MaxShapes = m_opt_count->IntegerValue(context).FromMaybe(0);
-		settings.Alpha = m_opt_alpha->IntegerValue(context).FromMaybe(0);
-		settings.CallbackShapes = m_opt_intervall->IntegerValue(context).FromMaybe(0);
+		settings.MaxShapes = (int)m_opt_count->IntegerValue(context).FromMaybe(0);
+		settings.Alpha = (int)m_opt_alpha->IntegerValue(context).FromMaybe(0);
+		settings.CallbackShapes = (int)m_opt_interval->IntegerValue(context).FromMaybe(0);
+		settings.Width = (int)m_opt_width->IntegerValue(context).FromMaybe(0);
+		settings.Height = (int)m_opt_height->IntegerValue(context).FromMaybe(0);
 		settings.Background = bg;
 
 		
@@ -236,8 +234,42 @@ namespace bob_rust_generator {
 		uv_queue_work(uv_default_loop(), &data->request, worker_generate, worker_generate_after);
 	}
 
+	void GetAlphas(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = args.GetIsolate();
+		Local<Context> context = isolate->GetCurrentContext();
+		Local<Array> array = Array::New(isolate, NUM_ALPHAS);
+		for(int i = 0; i < NUM_ALPHAS; i++) array->Set(context, i, Integer::New(isolate, ARR_ALPHAS[i]));
+		args.GetReturnValue().Set(array);
+	}
+
+	void GetColors(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = args.GetIsolate();
+		Local<Context> context = isolate->GetCurrentContext();
+		Local<Array> array = Array::New(isolate, NUM_COLORS);
+		for(int i = 0; i < NUM_COLORS; i++) {
+			const Color c = ARR_COLORS[i];
+			Local<Array> rgb = Array::New(isolate, 3);
+			rgb->Set(context, 0, Integer::New(isolate, c.r));
+			rgb->Set(context, 1, Integer::New(isolate, c.g));
+			rgb->Set(context, 2, Integer::New(isolate, c.b));
+			array->Set(context, i, rgb);
+		}
+		args.GetReturnValue().Set(array);
+	}
+
+	void GetSizes(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = args.GetIsolate();
+		Local<Context> context = isolate->GetCurrentContext();
+		Local<Array> array = Array::New(isolate, NUM_SIZES);
+		for(int i = 0; i < NUM_SIZES; i++) array->Set(context, i, Integer::New(isolate, ARR_SIZES[i]));
+		args.GetReturnValue().Set(array);
+	}
+
 	void Initialize(Local<Object> exports) {
 		NODE_SET_METHOD(exports, "generate", Generate);
+		NODE_SET_METHOD(exports, "alphas", GetAlphas);
+		NODE_SET_METHOD(exports, "colors", GetColors);
+		NODE_SET_METHOD(exports, "sizes", GetSizes);
 	}
 
 	NODE_MODULE(NODE_GYP_MODULE_NAME, Initialize)

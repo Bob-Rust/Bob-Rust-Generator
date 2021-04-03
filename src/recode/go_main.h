@@ -19,27 +19,33 @@ int run_borst_generator(Settings settings) {
 
 	printf("Reading from the file '%s'\n", input);
 
-	Image* image = BorstLoadImage(input);
+	Image* image = BorstLoadImage(input, settings.Width, settings.Height);
 	if(!image) {
 		printf("Failed to read image '%s'\n", input);
 		return BORST_INVALID_IMAGE;
 	}
-
-	Model* model = new Model(image, settings.Background);
+	
 	const int Count = settings.MaxShapes;
 	const int Callb = settings.CallbackShapes;
 	const int Alpha = ARR_ALPHAS[settings.Alpha];
+	Model* model = new Model(image, settings.Background, Alpha);
 	
-	printf("Settings:\n");
-	printf("  MaxShapes  = %d\n", Count);
-	printf("  Callback   = %d\n", Callb);
-	printf("  Alpha      = %d\n", Alpha);
-	printf("\n");
-	
+	{
+		Color bg = settings.Background;
+		printf("Settings:\n");
+		printf("  ImagePath  = %s\n", settings.ImagePath);
+		printf("  MaxShapes  = %d\n", settings.MaxShapes);
+		printf("  Callback   = %d\n", settings.CallbackShapes);
+		printf("  Alpha      = %d\n", settings.Alpha);
+		printf("  Dimensions = (%dx%d)\n", settings.Width, settings.Height);
+		printf("  Background = (%d, %d, %d, %d)\n", bg.r, bg.g, bg.b, bg.a);
+		printf("\n");
+	}
+
 	auto begin = high_resolution_clock::now();
 	for(int i = 0; i <= Count; i++) {
 		auto start = high_resolution_clock::now();
-		int n = model->Step(Alpha);
+		int n = model->Step();
 		
 		if((i % Callb) == 0 || (i == Count)) {
 			auto end = high_resolution_clock::now();

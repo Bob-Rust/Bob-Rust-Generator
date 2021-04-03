@@ -2,12 +2,8 @@
 
 // Contains the common types
 #include "bundle.h"
-
-// []
 #include "rand.h"
 #include "../utils.h"
-
-// [log.h]
 #include "util.h"
 #include "core.h"
 
