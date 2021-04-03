@@ -2,17 +2,20 @@
 #include "../utils.h"
 #include "sort_util.h"
 #include "quad_tree.h"
-#include <iostream>
-#include <vector>
-#include <ppl.h>
-#include <set>
-
-using std::vector;
-using std::set;
-#include "quad_tree.h"
 
 #ifndef __BLOB_SORT_H__
 #define __BLOB_SORT_H__
+
+#include <ppl.h>
+
+#include <vector>
+#include <set>
+using std::vector;
+using std::set;
+
+#ifdef _DEBUG_BLOB_SORTER
+#include <iostream>
+#endif
 
 namespace bobrust {
 	vector<int> get_intersections(Blob& target, Blob* buffer, QuadTree& tree) {
@@ -28,18 +31,14 @@ namespace bobrust {
 		result.reserve(set.size() / 10);
 		
 		Blob blob;
-		int x;
-		int y;
-		int sum;
-
 		for(auto blob_id : set) {
 			if(blob_id >= target_index) break;
 			blob = buffer[blob_id];
 
 			if(blob.size != target_size || blob.color != target_color) {
-				x = blob.x - target_x;
-				y = blob.y - target_y;
-				sum = blob.size + target_size;
+				int x = blob.x - target_x;
+				int y = blob.y - target_y;
+				int sum = blob.size + target_size;
 				if(x * x + y * y < sum * sum) {
 					result.push_back(blob_id);
 				}
@@ -149,14 +148,14 @@ namespace bobrust {
 		}
 	}
 
-	int* sort_blob_list_0(Blob data[], unsigned int length) {
+	int* sort_blob_list_0(Blob data[], unsigned int length, unsigned int width, unsigned int height) {
 		int* out = new int[length];
 		data[0].index = -1;
 		out[0] = 0;
 
 		vector<int>* map = new vector<int>[length];
 		
-		QuadTree tree(512, 512);
+		QuadTree tree(width, height);
 		/* Calculate the intersections */ {
 			for(unsigned int i = 1; i < length; i++) {
 				tree.add_piece(data[i]);
@@ -199,11 +198,11 @@ namespace bobrust {
 		return out;
 	}
 
-	void sort_blob_list(Blob* data, unsigned int length) {
+	void sort_blob_list(Blob* data, unsigned int length, unsigned int width, unsigned int height) {
 		Blob* clone = new Blob[length];
 		std::copy(data, data + length, clone);
 
-		int* out = sort_blob_list_0(clone, length);
+		int* out = sort_blob_list_0(clone, length, width, height);
 		for(unsigned int i = 0; i < length; i++) {
 			data[i] = clone[out[i]];
 		}
@@ -212,7 +211,7 @@ namespace bobrust {
 		delete[] clone;
 	}
 
-	/*
+#ifdef _DEBUG_BLOB_SORTER
 	int score(Blob* buffer, unsigned int length) {
 		int changes = 0;
 		short last_size = -1;
@@ -227,13 +226,13 @@ namespace bobrust {
 
 		return changes;
 	}
-	*/
+#endif
 
 	void sort_blob_list(Model* model) {
 		vector<Circle>& shapes = model->shapes;
 		vector<Color>& colors = model->colors;
 
-		unsigned int len = colors.size();
+		size_t len = colors.size();
 		Blob* list = new Blob[len];
 			
 		for(unsigned int i = 0; i < len; i++) {
@@ -242,10 +241,14 @@ namespace bobrust {
 			list[i] = Blob{ (int)i, shape.x, shape.y, shape.r, closestColorIndex(color) };
 		}
 
-		//printf("Before sort: score=%d\n", score(list, len));
-		bobrust::sort_blob_list(list, len);
-		//printf("After sort: score=%d\n", score(list, len));
-
+#ifdef _DEBUG_BLOB_SORTER
+		printf("Before sort: score=%d\n", score(list, len));
+		bobrust::sort_blob_list(list, len, model->width, model->height);
+		printf("After sort: score=%d\n", score(list, len));
+#else
+		bobrust::sort_blob_list(list, len, model->width, model->height);
+#endif
+		
 		for(unsigned int i = 0; i < len; i++) {
 			Blob blob = list[i];
 			Circle& cr = shapes[i];

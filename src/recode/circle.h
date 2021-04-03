@@ -1,23 +1,23 @@
+#pragma once
+
+
 #ifndef __CIRCLE_H_
 #define __CIRCLE_H_
 
-#include <sstream>
 #include "worker.h"
 #include "../utils.h"
+#include "circle_cache.h"
 
-// 16 bytes
 class Circle {
 	private:
-		Worker* worker = 0;
+		Worker* worker;
 
 	public:
 		int x, y, r;
 		
 		Circle() {}
-
 		Circle(Worker* worker) {
 			this->worker = worker;
-
 			Rand* rnd = worker->rnd;
 			this->x = rnd->Intn(worker->w);
 			this->y = rnd->Intn(worker->h);

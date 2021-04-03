@@ -4,6 +4,9 @@
 // Used to build a node module
 #define BUILD_NODE
 
+// Used to debug the sorting algorithm
+//#define _DEBUG_BLOB_SORTER
+
 #include "utils.h"
 #include "recode/all.h"
 #include "recode/go_main.h"
@@ -11,6 +14,7 @@
 
 #ifndef BUILD_NODE
 int main(int argc, char** argv) {
+	
 	Settings set;
 	set.ImagePath = (char*)"Debug/examples/wolf_512.png";
 	set.CallbackShapes = 100;

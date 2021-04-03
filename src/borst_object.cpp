@@ -1,5 +1,4 @@
 #ifdef BUILD_NODE
-
 #include <node.h>
 #include "borst_object.h"
 
@@ -9,7 +8,7 @@ Local<Array> bob_rust_generator::create_borst_list(Isolate* isolate, Model* mode
 	Local<Context> context = isolate->GetCurrentContext();
 	Local<Array> array = Array::New(isolate, count);
 
-	for(unsigned int i = 0; i < count; i++) {
+	for(int i = 0; i < count; i++) {
 		Local<Object> obj = Object::New(isolate);
 		{
 			Circle shape = model->shapes[i];
@@ -31,4 +30,17 @@ Local<Array> bob_rust_generator::create_borst_list(Isolate* isolate, Model* mode
 
 	return array;
 }
+
+Local<Object> bob_rust_generator::create_borst_object(Isolate* isolate, Model* model, int count) {
+	Local<Context> context = isolate->GetCurrentContext();
+	Local<Array> list = bob_rust_generator::create_borst_list(isolate, model, count);
+	
+	Local<Object> obj = Object::New(isolate);
+	obj->Set(context, String::NewFromUtf8(isolate, "list").ToLocalChecked(), list);
+	obj->Set(context, String::NewFromUtf8(isolate, "width").ToLocalChecked(), Integer::New(isolate, model->width));
+	obj->Set(context, String::NewFromUtf8(isolate, "height").ToLocalChecked(), Integer::New(isolate, model->height));
+
+	return obj;
+}
+
 #endif

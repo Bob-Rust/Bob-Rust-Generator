@@ -56,20 +56,20 @@ class QuadTree {
 				if(xpr) get_pieces_macro(blob, set, 3);
 			}
 		}
-	public:
-		QuadTree(int w, int h) {
-			this->x = 0;
-			this->y = 0;
-			this->s = (w > h ? w:h);
-			this->hs = (w > h ? w:h) / 2;
-			this->list.reserve(10);
-		}
 
 		QuadTree(int x, int y, int s) {
 			this->x = x;
 			this->y = y;
 			this->s = s;
 			this->hs = s / 2;
+			this->list.reserve(10);
+		}
+	public:
+		QuadTree(int w, int h) {
+			this->x = 0;
+			this->y = 0;
+			this->s = (w > h ? w:h);
+			this->hs = (w > h ? w:h) / 2;
 			this->list.reserve(10);
 		}
 

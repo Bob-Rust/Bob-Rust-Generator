@@ -1,15 +1,13 @@
 #include "all.h"
-#include <math.h>
 
 #ifndef __CORE_H__
 #define __CORE_H__
 
+#include "bundle.h"
+
+//#include <math.h>
 #include <vector>
 using std::vector;
-
-#include "../utils.h"
-#include "bundle.h"
-#include "circle_cache.h";
 
 typedef long long int64;
 typedef unsigned long long uint64;
@@ -71,7 +69,7 @@ Color computeColor(Image* target, Image* current, vector<Scanline>& lines, int a
 
 void copyLines_replaceRegion(Image* dst, Image* src, vector<Scanline>& lines) {
 	unsigned int w = dst->width;
-	const unsigned int len = lines.size();
+	const size_t len = lines.size();
 	for(unsigned int i = 0; i < len; i++) {
 		Scanline line = lines[i];
 		int idx = line.x1 + line.y * w;
@@ -86,7 +84,7 @@ void drawLines(Image* im, Color& c, vector<Scanline>& lines) {
 	unsigned int cb = (c.b * c.a);
 	unsigned int pa = (255 - c.a);
 	unsigned int w = im->width;
-	const unsigned int len = lines.size();
+	const size_t len = lines.size();
 	for(unsigned int i = 0; i < len; i++) {
 		Scanline line = lines[i];
 		Color* ima = im->Pix + line.y * w;
