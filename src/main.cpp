@@ -3,6 +3,7 @@
 
 // Used to build a node module
 #define BUILD_NODE
+#define NODE_GYP_MODULE_NAME borst_primitive
 
 // Used to debug the sorting algorithm
 //#define _DEBUG_BLOB_SORTER

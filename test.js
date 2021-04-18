@@ -14,7 +14,7 @@ function get_path(path) {
 
 var settings = {
 	path: get_path('testin.jpg'),
-	count: 4000,
+	count: 20000,
 	interval: 500,
 	alpha: 2,
 	width: 512,
